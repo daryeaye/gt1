@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Two Page App with Background Images and Link Box</title>
+  <style>
+    /* Center the app container on the screen */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #app-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    /* The container remains 960px x 540px */
+    #container {
+      position: relative;
+      width: 960px;
+      height: 540px;
+      border: 1px solid #ccc;
+      background: white;
+      overflow: hidden;
+    }
+    /* Pages are absolutely positioned inside the container */
+    .page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 960px;
+      height: 540px;
+      display: none;
+      background-size: cover;
+      background-position: center;
+    }
+    .page.active {
+      display: block;
+    }
+    /* Style for the clickable box */
+    .box {
+      position: absolute;
+      border: 1px solid red;
+      /* Optional background for visibility */
+      background-color: rgba(255, 0, 0, 0.3);
+    }
+    /* Navigation buttons styling */
+    #nav-buttons {
+      margin-top: 10px;
+    }
+    button {
+      font-family: "Comic Sans MS", sans-serif;
+      font-size: 20px;
+      background-color: lightblue;
+      border: none;
+      padding: 10px 20px;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+    <div id="container">
+      <!-- Page 1 with background image 1-20.jpg -->
+      <div id="page1" class="page active" style="background: url('https://daryeaye.github.io/gt1/1-20.jpg') no-repeat center/cover;">
+        <h2 style="text-align:center; padding-top: 240px; color: white;"></h2>
+      </div>
+      <!-- Page 2 with background image 1-21.jpg -->
+      <div id="page2" class="page" style="background: url('https://daryeaye.github.io/gt1/1-21.jpg') no-repeat center/cover;">
+        <h2 style="text-align:center; padding-top: 240px; color: white;"></h2>
+        <!-- Clickable box on page 2 -->
+        <a href="https://polypad.amplify.com/p/g8eh7VTDvyYA" target="_blank">
+          <div class="box" style="left: 639px; top: 19px; width: 134px; height: 49px;"></div>
+        </a>
+      </div>
+    </div>
+    <!-- Navigation buttons -->
+    <div id="nav-buttons">
+      <button id="prev-btn" onclick="prevPage()">Previous</button>
+      <button id="next-btn" onclick="nextPage()">Next</button>
+    </div>
+  </div>
+  
+  <script>
+    let currentPage = 1;
+    const totalPages = 2;
+    
+    // Function to display the correct page and toggle button visibility.
+    function showPage(pageNum) {
+      for (let i = 1; i <= totalPages; i++) {
+        document.getElementById('page' + i).classList.remove('active');
+      }
+      document.getElementById('page' + pageNum).classList.add('active');
+      
+      // On the first page, hide Previous; on the last page, hide Next.
+      if (pageNum === 1) {
+        document.getElementById("prev-btn").style.display = "none";
+        document.getElementById("next-btn").style.display = "inline-block";
+      } else if (pageNum === totalPages) {
+        document.getElementById("next-btn").style.display = "none";
+        document.getElementById("prev-btn").style.display = "inline-block";
+      }
+    }
+    
+    function nextPage() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        showPage(currentPage);
+      }
+    }
+    
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        showPage(currentPage);
+      }
+    }
+    
+    document.addEventListener("DOMContentLoaded", function() {
+      showPage(currentPage);
+    });
+  </script>
+</body>
+</html>
