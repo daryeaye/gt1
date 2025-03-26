@@ -20,6 +20,40 @@
       flex-direction: column;
       align-items: center;
     }
+    /* Header container for progress bar and name input */
+    #header {
+      width: 960px;
+      background: #eee;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    #header input#username {
+      font-size: 16px;
+      padding: 5px;
+    }
+    #confirmBtn {
+      margin-left: 10px;
+      font-size: 16px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    #progressBar {
+      flex: 1;
+      background: #ccc;
+      height: 20px;
+      margin: 0 10px;
+      position: relative;
+    }
+    #progress {
+      background: green;
+      height: 100%;
+      width: 0%;
+    }
+    #progressText {
+      font-size: 16px;
+    }
     #container {
       position: relative;
       width: 960px;
@@ -62,7 +96,6 @@
     }
     .ellipse {
       position: absolute;
-      /* New style: red border, 3px thick */
       border: 3px solid red;
       border-radius: 50%;
       background-color: transparent;
@@ -101,10 +134,23 @@
       margin: 0 5px;
       cursor: pointer;
     }
+    /* Draggable elements */
+    .draggable {
+      cursor: move;
+    }
   </style>
 </head>
 <body>
   <div id="app-container">
+    <!-- Header container with name input, confirm button, and progress bar -->
+    <div id="header">
+      <input type="text" id="username" placeholder="Enter your name">
+      <button id="confirmBtn" onclick="confirmName()">Confirm</button>
+      <div id="progressBar">
+        <div id="progress"></div>
+      </div>
+      <span id="progressText">0% completed</span>
+    </div>
     <div id="container">
       <!-- Page 1: Background image 1-1.jpg -->
       <div id="page1" class="page active" style="background: url('https://daryeaye.github.io/gt1/1-1.jpg') no-repeat center/cover;">
@@ -182,12 +228,10 @@
         <button id="drawingCanvas13_reset" class="drawingResetBtn">Reset</button>
         <canvas id="drawingCanvas13" class="drawingCanvas" width="960" height="540"></canvas>
       </div>
-      <!-- Page 14: Background image 1-14.jpg; left half drawing (line-drawing mode) and right half 4 textboxes -->
+      <!-- Page 14: Background image 1-14.jpg; left half drawing and right half 4 textboxes -->
       <div id="page14" class="page" style="background: url('https://daryeaye.github.io/gt1/1-14.jpg') no-repeat center/cover;">
-        <!-- Left half drawing canvas: 480x540 -->
         <button id="drawingCanvas14_reset" class="drawingResetBtn">Reset</button>
         <canvas id="drawingCanvas14" class="drawingCanvas" width="480" height="540"></canvas>
-        <!-- Four textboxes on right half with specified coordinates -->
         <input type="text" class="textbox" style="position: absolute; left:590px; top:187px; width:340px; height:68px;" placeholder="Textbox 1">
         <input type="text" class="textbox" style="position: absolute; left:601px; top:271px; width:340px; height:69px;" placeholder="Textbox 2">
         <input type="text" class="textbox" style="position: absolute; left:549px; top:351px; width:340px; height:69px;" placeholder="Textbox 3">
@@ -198,12 +242,10 @@
         <button id="drawingCanvas15_reset" class="drawingResetBtn">Reset</button>
         <canvas id="drawingCanvas15" class="drawingCanvas" width="960" height="540"></canvas>
       </div>
-      <!-- Page 16: Background image 1-16.jpg; left half drawing (line-drawing mode) and right half 4 textboxes -->
+      <!-- Page 16: Background image 1-16.jpg; left half drawing and right half 4 textboxes -->
       <div id="page16" class="page" style="background: url('https://daryeaye.github.io/gt1/1-16.jpg') no-repeat center/cover;">
-        <!-- Left half drawing canvas: 480x540 -->
         <button id="drawingCanvas16_reset" class="drawingResetBtn">Reset</button>
         <canvas id="drawingCanvas16" class="drawingCanvas" width="480" height="540"></canvas>
-        <!-- Four textboxes on right half with specified coordinates -->
         <input type="text" class="textbox" style="position: absolute; left:590px; top:187px; width:340px; height:68px;" placeholder="Textbox 1">
         <input type="text" class="textbox" style="position: absolute; left:605px; top:271px; width:338px; height:69px;" placeholder="Textbox 2">
         <input type="text" class="textbox" style="position: absolute; left:548px; top:350px; width:339px; height:69px;" placeholder="Textbox 3">
@@ -218,10 +260,21 @@
       </div>
       <!-- Page 19: Background image 1-19.jpg with one textbox (no answer checking) -->
       <div id="page19" class="page" style="background: url('https://daryeaye.github.io/gt1/1-19.jpg') no-repeat center/cover;">
-        <input type="text" class="textbox" style="left:294px; top:294px; width:372px; height:51px; text-align: center;" 
-        placeholder="Type your name...">
+        <a href="https://daryeaye.github.io/gt1/weide.html" target="_blank">
+          <div class="box" style="left:310px; top:435px; width:370px; height:45px; background-color: rgba(255, 0, 0, 0.5);"></div>
+        </a>
+      </div>
+      <!-- Page 20: Background image 1-20.jpg with a textbox and Unlock button -->
+      <div id="page20" class="page" style="background: url('https://daryeaye.github.io/gt1/1-20.jpg') no-repeat center/cover;">
+        <input type="text" class="textbox" style="left:294px; top:294px; width:372px; height:51px; text-align: center;" placeholder="Type your name...">
         <a href="https://daryeaye.github.io/gt1/weide.html" target="_blank">
           <div class="box" style="left:377px; top:435px; width:370px; height:45px; background-color: rgba(255, 0, 0, 0.5);"></div>
+        </a>
+      </div>
+      <!-- Page 21: Background image 3-Final.jpg with a non-typeable clickable box linking to www.google.com -->
+      <div id="page21" class="page" style="background: url('https://daryeaye.github.io/gt3/3-Final.jpg') no-repeat center/cover; background-size: contain;">
+        <a href="http://www.google.com" target="_blank">
+          <div class="clickable-box"></div>
         </a>
       </div>
     </div>
@@ -234,9 +287,10 @@
 
   <script>
     let currentPage = 1;
-    const totalPages = 19;
+    const totalPages = 19;  // Note: In this Lost Treasure project, totalPages is 19.
+    let maxPageVisited = 1; // track highest page reached
 
-    // Answer-checking function per page requirements.
+    // Answer-checking function as in your original code.
     function checkAnswer(pageNum) {
       let valid = true;
       switch(pageNum) {
@@ -305,15 +359,24 @@
         }
         case 14: {
           const inputs = document.querySelectorAll("#page14 .textbox");
-          // Only check the 4 textboxes on the right half (left >= 590)
-          const rightInputs = Array.from(inputs).filter(input => parseFloat(input.style.left) >= 590);
-          if (rightInputs.length < 4) valid = false;
+          if (inputs.length < 4) valid = false;
+          else {
+            if (!inputs[0].value.includes("10")) valid = false;
+            if (!inputs[1].value.includes("63")) valid = false;
+            if (!inputs[2].value.includes("54")) valid = false;
+            if (!inputs[3].value.includes("127")) valid = false;
+          }
           break;
         }
         case 16: {
           const inputs = document.querySelectorAll("#page16 .textbox");
-          const rightInputs = Array.from(inputs).filter(input => parseFloat(input.style.left) >= 590);
-          if (rightInputs.length < 4) valid = false;
+          if (inputs.length < 4) valid = false;
+          else {
+            if (!inputs[0].value.includes("4")) valid = false;
+            if (!inputs[1].value.includes("48")) valid = false;
+            if (!inputs[2].value.includes("13")) valid = false;
+            if (!inputs[3].value.includes("65")) valid = false;
+          }
           break;
         }
         case 18: {
@@ -335,6 +398,9 @@
       }
       if (currentPage === totalPages) return;
       currentPage++;
+      if (currentPage > maxPageVisited) {
+        maxPageVisited = currentPage;
+      }
       showPage(currentPage);
     }
     function prevPage() {
@@ -347,22 +413,25 @@
         document.getElementById('page' + i).classList.remove('active');
       }
       document.getElementById('page' + pageNum).classList.add('active');
-      // Hide Next button on the last page.
       if (pageNum === totalPages) {
         document.getElementById("next-btn").style.display = "none";
       } else {
         document.getElementById("next-btn").style.display = "inline-block";
       }
-      // Hide Previous button on the first page.
       if (pageNum === 1) {
         document.getElementById("prev-btn").style.display = "none";
       } else {
         document.getElementById("prev-btn").style.display = "inline-block";
       }
+      updateProgress();
+    }
+    function updateProgress() {
+      const progressPercent = (maxPageVisited / totalPages) * 100;
+      document.getElementById('progress').style.width = progressPercent + '%';
+      document.getElementById('progressText').innerText = progressPercent.toFixed(0) + '% completed';
     }
     
     /* --- Drawing Canvas Code --- */
-    // This function supports line-drawing mode only.
     function initDrawingCanvas(canvasId, resetBtnId, preloadDefaults = false, freeDraw = false) {
       const canvas = document.getElementById(canvasId);
       const ctx = canvas.getContext("2d");
@@ -389,12 +458,11 @@
       }
       
       if (preloadDefaults) {
-        lines.push({ startX: 255, startY: 89, endX: 255+127, endY: 89 });
-        lines.push({ startX: 277, startY: 117, endX: 277+127, endY: 117 });
+        lines.push({ startX: 255, startY: 89, endX: 382, endY: 89 });
+        lines.push({ startX: 277, startY: 117, endX: 404, endY: 117 });
         redraw();
       }
       
-      // For our pages 13,15,14,16, we want only straight line drawing.
       canvas.addEventListener("mousedown", function(e) {
         if (lines.length >= 2 && !freeDraw) return;
         const pos = getMousePos(e);
@@ -426,14 +494,13 @@
       resetBtn.addEventListener("click", function() {
         lines = [];
         if (preloadDefaults) {
-          lines.push({ startX: 255, startY: 89, endX: 255+127, endY: 89 });
-          lines.push({ startX: 277, startY: 117, endX: 277+127, endY: 117 });
+          lines.push({ startX: 255, startY: 89, endX: 382, endY: 89 });
+          lines.push({ startX: 277, startY: 117, endX: 404, endY: 117 });
         }
         redraw();
       });
     }
     
-    // Unlock button for Page 18.
     function initUnlockButton() {
       const unlockBtn = document.getElementById("unlockBtn");
       const unlockInput = document.getElementById("unlockInput");
@@ -446,14 +513,26 @@
       });
     }
     
+    // Confirm the user's name and disable changes.
+    function confirmName() {
+      const nameInput = document.getElementById("username");
+      const name = nameInput.value.trim();
+      if (name !== "") {
+        localStorage.setItem("username", name);
+        nameInput.disabled = true;
+        alert("Name confirmed as: " + name);
+      } else {
+        alert("Please enter a name.");
+      }
+    }
+    
     document.addEventListener("DOMContentLoaded", function(){
       // For pages 13 and 15: line-drawing mode with defaults.
       initDrawingCanvas("drawingCanvas13", "drawingCanvas13_reset", false, false);
       initDrawingCanvas("drawingCanvas15", "drawingCanvas15_reset", false, false);
-      // For pages 14 and 16: left-half drawing canvases remain unchanged.
+      // For pages 14 and 16: left-half drawing canvases.
       initDrawingCanvas("drawingCanvas14", "drawingCanvas14_reset", false, false);
       initDrawingCanvas("drawingCanvas16", "drawingCanvas16_reset", false, false);
-      initUnlockButton();
       
       /* Persistent User Input for Textboxes */
       const inputs = document.querySelectorAll('input[type="text"]');
@@ -464,7 +543,7 @@
         input.addEventListener("input", function(){ localStorage.setItem(key, input.value); });
       });
       
-      // Enable dragging for all elements with class "draggable" using computed style.
+      // Enable dragging for all elements with class "draggable"
       document.querySelectorAll('.draggable').forEach(el => {
         el.addEventListener('mousedown', function(e) {
           const style = window.getComputedStyle(el);
@@ -487,6 +566,7 @@
         });
       });
       
+      initUnlockButton();
       showPage(currentPage);
     });
     
@@ -495,18 +575,23 @@
         document.getElementById('page' + i).classList.remove('active');
       }
       document.getElementById('page' + pageNum).classList.add('active');
-      // Hide the Next button on the last page.
       if (pageNum === totalPages) {
         document.getElementById("next-btn").style.display = "none";
       } else {
         document.getElementById("next-btn").style.display = "inline-block";
       }
-      // Hide the Previous button on the first page.
       if (pageNum === 1) {
         document.getElementById("prev-btn").style.display = "none";
       } else {
         document.getElementById("prev-btn").style.display = "inline-block";
       }
+      updateProgress();
+    }
+    
+    function updateProgress() {
+      const progressPercent = (maxPageVisited / totalPages) * 100;
+      document.getElementById('progress').style.width = progressPercent + '%';
+      document.getElementById('progressText').innerText = progressPercent.toFixed(0) + '% completed';
     }
     
     function nextPage() {
@@ -519,6 +604,9 @@
       }
       if (currentPage === totalPages) return;
       currentPage++;
+      if (currentPage > maxPageVisited) {
+        maxPageVisited = currentPage;
+      }
       showPage(currentPage);
     }
     
@@ -596,7 +684,6 @@
           break;
         }
         case 14: {
-          // Page 14: Four textboxes: must contain "10", "63", "54", "127" respectively.
           const inputs = document.querySelectorAll("#page14 .textbox");
           if (inputs.length < 4) valid = false;
           else {
@@ -608,7 +695,6 @@
           break;
         }
         case 16: {
-          // Page 16: Four textboxes: must contain "4", "48", "13", "65" respectively.
           const inputs = document.querySelectorAll("#page16 .textbox");
           if (inputs.length < 4) valid = false;
           else {
