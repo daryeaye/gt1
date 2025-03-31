@@ -300,93 +300,6 @@
     const totalPages = 19;  // Note: In this Lost Treasure project, totalPages is 19.
     let maxPageVisited = 1; // track highest page reached
 
-    // Answer-checking function as in your original code.
-    function checkAnswer(pageNum) {
-      let valid = true;
-      switch(pageNum) {
-        case 3: {
-          const inputs = document.querySelectorAll("#page3 .textbox");
-          let filled = 0;
-          inputs.forEach(input => { if (input.value.trim() !== "") filled++; });
-          if (filled < 5) valid = false;
-          break;
-        }
-        case 4: {
-          const inputs = document.querySelectorAll("#page4 .textbox");
-          if (inputs.length < 2) valid = false;
-          else {
-            if (!inputs[0].value.includes("60")) valid = false;
-            if (!inputs[1].value.toLowerCase().includes("no")) valid = false;
-          }
-          break;
-        }
-        case 5: {
-          const inputs = document.querySelectorAll("#page5 .textbox");
-          if (inputs.length < 1 || !inputs[0].value.includes("60")) valid = false;
-          break;
-        }
-        case 6: {
-          const inputs = document.querySelectorAll("#page6 .textbox");
-          if (inputs.length < 2) valid = false;
-          else {
-            if (!inputs[0].value.includes("13")) valid = false;
-            if (!inputs[1].value.includes("60")) valid = false;
-          }
-          break;
-        }
-        case 7: {
-          const inputs = document.querySelectorAll("#page7 .textbox");
-          if (inputs.length < 2) valid = false;
-          else {
-            if (!inputs[0].value.includes("3")) valid = false;
-            if (!inputs[1].value.toLowerCase().includes("zoid")) valid = false;
-          }
-          break;
-        }
-        case 8: {
-          const inputs = document.querySelectorAll("#page8 .textbox");
-          if (inputs.length < 1 || !inputs[0].value.includes("10")) valid = false;
-          break;
-        }
-        case 9: {
-          const inputs = document.querySelectorAll("#page9 .textbox");
-          if (inputs.length < 1 || !inputs[0].value.includes("20")) valid = false;
-          break;
-        }
-        case 11: {
-          const inputs = document.querySelectorAll("#page11 .textbox");
-          if (inputs.length < 2) valid = false;
-          else {
-            if (!inputs[0].value.includes("16.8")) valid = false;
-            if (!inputs[1].value.toLowerCase().includes("tuse")) valid = false;
-          }
-          break;
-        }
-        case 12: {
-          const inputs = document.querySelectorAll("#page12 .textbox");
-          if (inputs.length < 1 || !inputs[0].value.includes("9")) valid = false;
-          break;
-        }
-        case 14: {
-          const input = document.querySelector("#page14 .textbox:nth-of-type(4)");
-          if (!input || !input.value.includes("127")) valid = false;
-          break;
-        }
-        case 16: {
-          const inputs = document.querySelectorAll("#page16 .textbox:nth-of-type(4)");
-          if (!input || !input.value.includes("65")) valid = false;
-          }
-          break;
-        }
-        case 18: {
-          const input = document.querySelector("#page18 .textbox");
-          if (!input || input.value.trim() !== "200") valid = false;
-          break;
-        }
-      }
-      return valid;
-    }
-
     function nextPage() {
       const pagesToCheck = [3,4,5,6,7,8,9,11,12,14,16,18];
       if (pagesToCheck.includes(currentPage)) {
@@ -686,9 +599,6 @@
           const inputs = document.querySelectorAll("#page14 .textbox");
           if (inputs.length < 4) valid = false;
           else {
-            if (!inputs[0].value.includes("10")) valid = false;
-            if (!inputs[1].value.includes("63")) valid = false;
-            if (!inputs[2].value.includes("54")) valid = false;
             if (!inputs[3].value.includes("127")) valid = false;
           }
           break;
@@ -697,9 +607,6 @@
           const inputs = document.querySelectorAll("#page16 .textbox");
           if (inputs.length < 4) valid = false;
           else {
-            if (!inputs[0].value.includes("4")) valid = false;
-            if (!inputs[1].value.includes("48")) valid = false;
-            if (!inputs[2].value.includes("13")) valid = false;
             if (!inputs[3].value.includes("65")) valid = false;
           }
           break;
