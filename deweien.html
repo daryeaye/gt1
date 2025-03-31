@@ -368,18 +368,13 @@
           break;
         }
         case 14: {
-          const inputs = document.querySelectorAll("#page14 .textbox");
-          if (inputs.length < 4) valid = false;
-          else {
-            if (!inputs[3].value.includes("127")) valid = false;
-          }
+          const input = document.querySelector("#page14 .textbox:nth-of-type(4)");
+          if (!input || !input.value.includes("127")) valid = false;
           break;
         }
         case 16: {
-          const inputs = document.querySelectorAll("#page16 .textbox");
-          if (inputs.length < 4) valid = false;
-          else {
-            if (!inputs[3].value.includes("65")) valid = false;
+          const inputs = document.querySelectorAll("#page16 .textbox:nth-of-type(4)");
+          if (!input || !input.value.includes("65")) valid = false;
           }
           break;
         }
