@@ -140,7 +140,6 @@
     .draggable {
       cursor: move;
     }
-    
     /* --- Side Widget Styles --- */
     #side-widget {
       position: fixed;
@@ -339,33 +338,22 @@
     </div>
   </div>
 
+  <!-- Hidden iframe and form for CORS-free answer validation -->
+  <iframe name="answerFrame" id="answerFrame" style="display: none;"></iframe>
+  <form id="answerForm" target="answerFrame" action="https://script.google.com/macros/s/AKfycbxVj2g0ZXfsRsqFbHG5tokbWHhuSKjirAlpAUDTPVIJP2gxoc-XKdPEorHnDVBvVhTcIw/exec" method="GET" style="display: none;"></form>
+
   <script>
     let currentPage = 1;
     const totalPages = 19;
     let maxPageVisited = 1;
-    
-    // Modified nextPage function to use the backend for validation
+    const pagesToCheck = [3,4,5,6,7,8,9,11,12,14,16,18];
+
     async function nextPage() {
-      const pagesToCheck = [3,4,5,6,7,8,9,11,12,14,16,18];
       if (pagesToCheck.includes(currentPage)) {
-        const inputs = document.querySelectorAll(`#page${currentPage} .textbox`);
-        const answers = Array.from(inputs).map(input => input.value);
-        
-        // Call the backend Google Apps Script for validation
-        try {
-          const response = await fetch('https://script.google.com/macros/s/AKfycby53f-w6cFMqIIY7CbVB4FaOHtmJDa7Q94tTNkodLjwnrxb68vfISwoIQyRU5eoNSrKmA/exec', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ page: currentPage, answers })
-          });
-          const data = await response.json();
-          if (!data.valid) {
-            alert("Oops. Some answers are incorrect. Let's try again!");
-            return;
-          }
-        } catch (error) {
-          console.error('Error validating answers:', error);
-          alert("Validation error. Please try again later.");
+        // Use the form+iframe method for answer validation
+        const isValid = await checkAnswerWithForm(currentPage);
+        if (!isValid) {
+          alert("Oops. Some answers are incorrect. Let's try again!");
           return;
         }
       }
@@ -402,6 +390,37 @@
       const progressPercent = (maxPageVisited / totalPages) * 100;
       document.getElementById('progress').style.width = progressPercent + '%';
       document.getElementById('progressText').innerText = progressPercent.toFixed(0) + '% completed';
+    }
+    
+    // New function to check answers using hidden form and iframe
+    function checkAnswerWithForm(page) {
+      return new Promise((resolve, reject) => {
+        const form = document.getElementById("answerForm");
+        // Clear any previous inputs
+        form.innerHTML = "";
+        // Append page number
+        const pageInput = document.createElement("input");
+        pageInput.type = "hidden";
+        pageInput.name = "page";
+        pageInput.value = page;
+        form.appendChild(pageInput);
+        // Append each textbox value as answer inputs
+        const inputs = document.querySelectorAll(`#page${page} .textbox`);
+        inputs.forEach((input, index) => {
+          const answerInput = document.createElement("input");
+          answerInput.type = "hidden";
+          answerInput.name = "answer" + (index + 1);
+          answerInput.value = input.value;
+          form.appendChild(answerInput);
+        });
+        // Listen for the postMessage response (one-time listener)
+        window.addEventListener("message", function messageHandler(event) {
+          // Optionally, validate event.origin here for security
+          resolve(event.data);
+        }, { once: true });
+        // Submit the form, sending the data to the backend
+        form.submit();
+      });
     }
     
     /* --- Drawing Canvas Code --- */
