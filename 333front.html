@@ -353,7 +353,7 @@
         
         // Call the backend Google Apps Script for validation
         try {
-          const response = await fetch('https://script.google.com/macros/s/AKfycbxwnJCzocsPZ109zv-JQOyVsLkBWGD_30SVQms2gXJZpgLS8eD6x_fw2W4S2CCI2wg2pA/exec', {
+          const response = await fetch('https://script.google.com/macros/s/AKfycby53f-w6cFMqIIY7CbVB4FaOHtmJDa7Q94tTNkodLjwnrxb68vfISwoIQyRU5eoNSrKmA/exec', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ page: currentPage, answers })
