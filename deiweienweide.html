@@ -586,13 +586,24 @@
     function initUnlockButton() {
       const unlockBtn = document.getElementById("unlockBtn"),
             unlockInput = document.getElementById("unlockInput");
-
+    
       unlockBtn.addEventListener("click", function () {
-        unlockInput.value.trim() === "200"
-          ? window.open("https://daryeaye.github.io/geotopia/jimi.pdf", "_blank")
-          : alert("Oops. Some answers are incorrect. Let's try again!");
+        if (unlockInput.value.trim() === "200") {
+    
+          // 1️⃣ Open the PDF
+          window.open("https://daryeaye.github.io/geotopia/jimi.pdf", "_blank");
+    
+          // 2️⃣ Move to page 19
+          currentPage = 19;
+          if (currentPage > maxPageVisited) maxPageVisited = currentPage;
+          showPage(currentPage);
+    
+        } else {
+          alert("Oops. Some answers are incorrect. Let's try again!");
+        }
       });
     }
+
 
     function confirmName() {
       const nameInput = document.getElementById("username"),
