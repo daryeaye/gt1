@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,10 +8,9 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&display=swap" rel="stylesheet" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <!-- PDF.js (Google Sites-safe PDF rendering) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
@@ -28,6 +29,7 @@
       align-items: flex-start;
       padding: 10px 0 40px;
       box-sizing: border-box;
+      font-family: Arial, sans-serif;
     }
 
     #app-container {
@@ -37,45 +39,121 @@
       width: 100%;
     }
 
-    /* Sticky header so progress bar is always visible */
+    #tutorialOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #tutorialBox{
+      position: relative;
+      width: min(860px, 88vw);
+      height: min(500px, 78vh);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #tutorialImage{
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    }
+    #tutorialNext{
+      position: absolute;
+      right: -30px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 56px;
+      height: 50%;
+      min-height: 140px;
+      border: none;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.88);
+      color: #111;
+      font-size: 42px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+      line-height: 1;
+      font-family: "Love Ya Like A Sister", cursive;
+    }
+    #tutorialNext:hover{
+      background: rgba(255,255,255,0.96);
+    }
+
     #header {
       width: 960px;
       background: #eee;
       padding: 10px;
       margin-bottom: 10px;
       display: flex;
-      align-items: center;
-
+      flex-direction: column;
+      gap: 8px;
       position: sticky;
       top: 0;
       z-index: 2000;
       box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      box-sizing: border-box;
     }
 
-    #header input#username {
-      font-size: 16px;
-      padding: 5px;
+    #topAuthRow, #progressRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
-    #confirmBtn {
-      margin-left: 10px;
+    #topAuthLeft {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #student-username, #student-password {
       font-size: 16px;
-      padding: 5px 10px;
+      padding: 5px 8px;
+      width: 150px;
+      box-sizing: border-box;
+    }
+
+    #registerBtn, #loginBtn, #logoutBtn, #introBtn, #openFileBtn, #prev-btn, #next-btn,
+    #unlockBtn, #collapse-widget, .drawingResetBtn, #side-widget button:not(#collapse-widget) {
+      font-family: "Love Ya Like A Sister", cursive;
+    }
+
+    #registerBtn, #loginBtn, #logoutBtn, #introBtn {
+      font-size: 22px;
+      padding: 6px 12px;
       cursor: pointer;
+      background-color: lightblue;
+      border: none;
+      line-height: 1;
+      border-radius: 6px;
     }
 
-    #introBtn {
-    margin-left: 10px;
-    font-size: 16px;
-    padding: 5px 10px;
-    cursor: pointer;
+    #authStatus {
+      font-size: 15px;
+      font-family: "Comic Sans MS", sans-serif;
+      color: #222;
+      min-width: 170px;
+      text-align: right;
     }
 
     #progressBar {
       flex: 1;
       background: #ccc;
       height: 20px;
-      margin: 0 10px;
+      margin: 0 10px 0 0;
       position: relative;
     }
 
@@ -87,6 +165,14 @@
 
     #progressText {
       font-size: 16px;
+      white-space: nowrap;
+    }
+
+    #saveStatus {
+      font-size: 13px;
+      color: #444;
+      min-width: 120px;
+      text-align: right;
     }
 
     #main-area {
@@ -95,7 +181,6 @@
       justify-content: center;
     }
 
-    /* wrapper anchors the nav buttons without affecting canvas centering */
     #main-wrapper {
       position: relative;
       width: 960px;
@@ -117,6 +202,10 @@
       width: 960px;
       height: 540px;
       display: none;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      overflow: hidden;
     }
 
     .page.active {
@@ -135,8 +224,9 @@
       font-family: "Comic Sans MS", sans-serif;
       font-size: 20px;
       color: black;
-      padding: 2px;
+      padding: 2px 6px;
       box-sizing: border-box;
+      z-index: 20;
     }
 
     .caveat { font-family: "Caveat", cursive; }
@@ -147,6 +237,7 @@
       border: 3px solid red;
       border-radius: 50%;
       background-color: transparent;
+      z-index: 22;
     }
 
     .drawingCanvas {
@@ -154,22 +245,23 @@
       left: 0;
       top: 0;
       z-index: 5;
+      cursor: crosshair;
     }
 
     .drawingResetBtn {
       position: absolute;
       top: 10px;
       left: 10px;
-      z-index: 10;
-      font-family: "Comic Sans MS", sans-serif;
-      font-size: 20px;
+      z-index: 30;
+      font-size: 18px;
       background-color: lightblue;
       border: none;
-      padding: 5px 10px;
+      padding: 6px 12px;
       cursor: pointer;
+      border-radius: 6px;
+      line-height: 1;
     }
 
-    /* Prev/Next: left side, vertically centered, close to canvas */
     #nav-buttons {
       position: absolute;
       top: 50%;
@@ -178,6 +270,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      z-index: 3000;
     }
 
     button {
@@ -204,6 +297,48 @@
       box-sizing: border-box;
       font-family: 'Caveat', cursive;
       z-index: 999;
+      transition: all 0.25s ease;
+    }
+
+    #side-widget.collapsed {
+      width: 120px;
+      height: 24px;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: rgba(249,249,249,0.95);
+      border: 1px solid #ccc;
+      font-family: "Comic Sans MS", sans-serif;
+      font-size: 8px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    #side-widget.collapsed * {
+      display: none !important;
+    }
+
+    #side-widget.collapsed::after {
+      content: "Translation";
+    }
+
+    #collapse-widget {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      line-height: 1;
+      font-size: 14px;
+      background: lightblue;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: "Comic Sans MS", sans-serif;
     }
 
     #side-widget p.title {
@@ -212,7 +347,7 @@
       margin: 0 0 10px;
     }
 
-    #side-widget button, #side-widget a {
+    #side-widget button:not(#collapse-widget) {
       display: block;
       margin: 0 auto;
       font-size: 20px;
@@ -221,8 +356,21 @@
       background: lightblue;
       border: none;
       padding: 10px;
+      font-family: "Comic Sans MS", sans-serif;
+    }
+
+    #side-widget a {
+      display: block;
+      margin: 0 auto;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      background: lightblue;
+      border: none;
+      padding: 6px;
       text-decoration: none;
       color: inherit;
+      font-family: "Comic Sans MS", sans-serif;
     }
 
     #selection-overlay {
@@ -241,11 +389,6 @@
       background: rgba(0, 0, 0, 0.1);
     }
 
-    /* ==============================
-       SECOND CANVAS (same size as main canvas)
-       Uses 1600x900 design scaled down to 960x540 via CSS transform.
-       ============================== */
-
     #role-container {
       position: relative;
       width: 960px;
@@ -257,30 +400,26 @@
       background: #fff;
     }
 
-    /* Inner stage is 1600x900, scaled to fit 960x540 */
     #role-stage {
       position: absolute;
       top: 0;
       left: 0;
       width: 1600px;
       height: 900px;
-
       transform-origin: top left;
-      transform: scale(0.6); /* 960/1600 = 0.6 and 540/900 = 0.6 */
-
+      transform: scale(0.6);
       background: url('https://daryeaye.github.io/geotopia/role.jpg') no-repeat center/cover;
     }
 
     .role-hotspot {
       position: absolute;
-      background: rgba(255,0,0,0); /* invisible */
+      background: rgba(255,0,0,0);
       border: none;
       padding: 0;
       margin: 0;
       cursor: pointer;
     }
 
-    /* PDF.js viewer fills role-container (960x540) once chosen */
     #pdfViewer {
       position: absolute;
       inset: 0;
@@ -312,36 +451,116 @@
       display: none;
     }
 
-    /* hides role-stage (background + hotspots) once PDF is active */
     #role-container.pdf-mode #role-stage {
       display: none;
     }
+
+    #openFileWrap {
+      width: 960px;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    #openFileBtn {
+      font-size: 16px;
+      padding: 8px 16px;
+      background: lightblue;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      line-height: 1;
+    }
+
+    #customPopupOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 20000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #customPopupBox{
+      width: min(430px, 88vw);
+      background: #fffdf7;
+      border: 3px solid #000;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      padding: 24px 20px 18px;
+      text-align: center;
+      font-family: "Comic Sans MS", sans-serif;
+    }
+    #customPopupMessage{
+      font-size: 24px;
+      line-height: 1.35;
+      color: #111;
+      margin-bottom: 18px;
+    }
+    #customPopupButtons{
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .popupBtn{
+      font-family: "Love Ya Like A Sister", cursive;
+      font-size: 24px;
+      background: lightblue;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 8px 20px;
+      cursor: pointer;
+    }
+
+    #pageTransitionOverlay{
+      position: absolute;
+      inset: 0;
+      background: #000;
+      z-index: 10050;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+
+    #unlockBtn {
+      position:absolute;
+      left:550px;
+      top:390px;
+      font-size:18px;
+      padding:8px 14px;
+      cursor:pointer;
+      border-radius:6px;
+      line-height:1;
+    }
   </style>
 </head>
-
 <body>
   <div id="app-container">
     <div id="header">
-      <div id="header-top">
-        <div>
-          <input type="text" id="username" placeholder="Enter your name" style="font-size:16px; padding:5px;" />
-          <button id="confirmBtn" onclick="confirmName()">Confirm</button>
-          <button id="introBtn" onclick="openIntro()">Intro</button>
+      <div id="topAuthRow">
+        <div id="topAuthLeft">
+          <input type="text" id="student-username" placeholder="Username" autocomplete="username" />
+          <input type="password" id="student-password" placeholder="Password" autocomplete="current-password" />
+          <button id="registerBtn" type="button">Register</button>
+          <button id="loginBtn" type="button">Log In</button>
+          <button id="logoutBtn" type="button" style="display:none;">Log Out</button>
+          <button id="introBtn" type="button" onclick="openIntro()">Intro</button>
         </div>
+        <div id="authStatus">Not logged in</div>
       </div>
 
-      <div id="progressBar">
-        <div id="progress"></div>
+      <div id="progressRow">
+        <div id="progressBar"><div id="progress"></div></div>
+        <span id="progressText">0% completed</span>
+        <span id="saveStatus">Not saved yet</span>
       </div>
-
-      <span id="progressText">0% completed</span>
     </div>
 
     <div id="main-area">
       <div id="main-wrapper">
         <div id="nav-buttons">
-          <button id="prev-btn" onclick="prevPage()">Previous</button>
-          <button id="next-btn" onclick="nextPage()">Next</button>
+          <button id="prev-btn" type="button" onclick="prevPage()">Previous</button>
+          <button id="next-btn" type="button" onclick="nextPage()">Next</button>
         </div>
 
         <div id="container">
@@ -349,94 +568,94 @@
           <div id="page2" class="page" style="background:url('https://daryeaye.github.io/gt1/1-2.jpg') no-repeat center/cover;"></div>
 
           <div id="page3" class="page" style="background:url('https://daryeaye.github.io/gt1/1-3.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox" style="left:380px;top:134px;width:129px;height:31px;">
-            <input type="text" class="textbox" style="left:805px;top:134px;width:111px;height:31px;">
-            <input type="text" class="textbox" style="left:709px;top:201px;width:119px;height:31px;">
-            <input type="text" class="textbox" style="left:644px;top:253px;width:73px;height:31px;">
-            <input type="text" class="textbox" style="left:689px;top:286px;width:119px;height:31px;">
-            <input type="text" class="textbox" style="left:602px;top:371px;width:110px;height:31px;">
-            <input type="text" class="textbox" style="left:577px;top:403px;width:97px;height:31px;">
-            <input type="text" class="textbox" style="left:380px;top:436px;width:129px;height:31px;">
-            <input type="text" class="textbox" style="left:709px;top:437px;width:111px;height:31px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p3-1" style="left:380px;top:134px;width:129px;height:31px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p3-2" style="left:805px;top:134px;width:111px;height:31px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p3-3" style="left:709px;top:201px;width:119px;height:31px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p3-4" style="left:644px;top:253px;width:73px;height:31px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p3-5" style="left:689px;top:286px;width:119px;height:31px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p3-6" style="left:602px;top:371px;width:110px;height:31px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p3-7" style="left:577px;top:403px;width:97px;height:31px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p3-8" style="left:380px;top:436px;width:129px;height:31px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p3-9" style="left:709px;top:437px;width:111px;height:31px;">
           </div>
 
           <div id="page4" class="page" style="background:url('https://daryeaye.github.io/gt1/1-4.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox" style="left:447px;top:257px;width:488px;height:98px;">
-            <input type="text" class="textbox" style="left:448px;top:449px;width:487px;height:77px;">
-            <div class="ellipse draggable" style="left:509.5px;top:108px;width:41px;height:160px;transform:rotate(90deg);"></div>
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p4-1" style="left:447px;top:257px;width:488px;height:98px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p4-2" style="left:448px;top:449px;width:487px;height:77px;">
+            <div id="ellipse4" class="ellipse draggable" data-dragkey="ellipse4" style="left:509.5px;top:108px;width:41px;height:160px;transform:rotate(90deg);"></div>
           </div>
 
           <div id="page5" class="page" style="background:url('https://daryeaye.github.io/gt1/1-5.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox" style="left:447px;top:257px;width:488px;height:98px;">
-            <input type="text" class="textbox" style="left:448px;top:449px;width:487px;height:77px;">
-            <div class="ellipse draggable" style="left:509.5px;top:108px;width:41px;height:160px;transform:rotate(90deg);"></div>
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p5-1" style="left:447px;top:257px;width:488px;height:98px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p5-2" style="left:448px;top:449px;width:487px;height:77px;">
+            <div id="ellipse5" class="ellipse draggable" data-dragkey="ellipse5" style="left:509.5px;top:108px;width:41px;height:160px;transform:rotate(90deg);"></div>
           </div>
 
           <div id="page6" class="page" style="background:url('https://daryeaye.github.io/gt1/1-6.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox" style="left:444px;top:177px;width:487px;height:107px;">
-            <input type="text" class="textbox" style="left:444px;top:401px;width:487px;height:108px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p6-1" style="left:444px;top:177px;width:487px;height:107px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p6-2" style="left:444px;top:401px;width:487px;height:108px;">
           </div>
 
           <div id="page7" class="page" style="background:url('https://daryeaye.github.io/gt1/1-7.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox" style="left:443px;top:170px;width:487px;height:148px;">
-            <input type="text" class="textbox" style="left:443px;top:457px;width:487px;height:42px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p7-1" style="left:443px;top:170px;width:487px;height:148px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p7-2" style="left:443px;top:457px;width:487px;height:42px;">
           </div>
 
           <div id="page8" class="page" style="background:url('https://daryeaye.github.io/gt1/1-8.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox" style="left:443px;top:173px;width:487px;height:159px;">
-            <div class="ellipse draggable" style="left:510px;top:361px;width:40px;height:160px;transform:rotate(90deg);"></div>
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p8-1" style="left:443px;top:173px;width:487px;height:159px;">
+            <div id="ellipse8" class="ellipse draggable" data-dragkey="ellipse8" style="left:510px;top:361px;width:40px;height:160px;transform:rotate(90deg);"></div>
           </div>
 
           <div id="page9" class="page" style="background:url('https://daryeaye.github.io/gt1/1-9.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox" style="left:443px;top:173px;width:487px;height:159px;">
-            <div class="ellipse draggable" style="left:510px;top:361px;width:40px;height:160px;transform:rotate(90deg);"></div>
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p9-1" style="left:443px;top:173px;width:487px;height:159px;">
+            <div id="ellipse9" class="ellipse draggable" data-dragkey="ellipse9" style="left:510px;top:361px;width:40px;height:160px;transform:rotate(90deg);"></div>
           </div>
 
           <div id="page10" class="page" style="background:url('https://daryeaye.github.io/gt1/1-10.jpg') no-repeat center/cover;"></div>
 
           <div id="page11" class="page" style="background:url('https://daryeaye.github.io/gt1/1-11.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox" style="left:443px;top:173px;width:487px;height:167px;">
-            <input type="text" class="textbox" style="left:443px;top:423px;width:487px;height:54px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p11-1" style="left:443px;top:173px;width:487px;height:167px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p11-2" style="left:443px;top:423px;width:487px;height:54px;">
           </div>
 
           <div id="page12" class="page" style="background:url('https://daryeaye.github.io/gt1/1-12.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox" style="left:443px;top:121px;width:487px;height:157px;">
-            <input type="text" class="textbox" style="left:443px;top:402px;width:487px;height:105px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p12-1" style="left:443px;top:121px;width:487px;height:157px;">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p12-2" style="left:443px;top:402px;width:487px;height:105px;">
           </div>
 
           <div id="page13" class="page" style="background:url('https://daryeaye.github.io/gt1/1-13.jpg') no-repeat center/cover;">
-            <button id="drawingCanvas13_reset" class="drawingResetBtn">Reset</button>
+            <button id="drawingCanvas13_reset" class="drawingResetBtn" type="button">Reset</button>
             <canvas id="drawingCanvas13" class="drawingCanvas" width="960" height="540"></canvas>
           </div>
 
           <div id="page14" class="page" style="background:url('https://daryeaye.github.io/gt1/1-14.jpg') no-repeat center/cover;">
-            <button id="drawingCanvas14_reset" class="drawingResetBtn">Reset</button>
+            <button id="drawingCanvas14_reset" class="drawingResetBtn" type="button">Reset</button>
             <canvas id="drawingCanvas14" class="drawingCanvas" width="480" height="540"></canvas>
-            <input type="text" class="textbox" style="position:absolute;left:590px;top:187px;width:340px;height:68px;" placeholder="Textbox 1">
-            <input type="text" class="textbox" style="position:absolute;left:601px;top:271px;width:340px;height:69px;" placeholder="Textbox 2">
-            <input type="text" class="textbox" style="position:absolute;left:549px;top:351px;width:340px;height:69px;" placeholder="Textbox 3">
-            <input type="text" class="textbox" style="position:absolute;left:569px;top:430px;width:340px;height:69px;" placeholder="Textbox 4">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p14-1" style="left:590px;top:187px;width:340px;height:68px;" placeholder="Textbox 1">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p14-2" style="left:601px;top:271px;width:340px;height:69px;" placeholder="Textbox 2">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p14-3" style="left:549px;top:351px;width:340px;height:69px;" placeholder="Textbox 3">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p14-4" style="left:569px;top:430px;width:340px;height:69px;" placeholder="Textbox 4">
           </div>
 
           <div id="page15" class="page" style="background:url('https://daryeaye.github.io/gt1/1-15.jpg') no-repeat center/cover;">
-            <button id="drawingCanvas15_reset" class="drawingResetBtn">Reset</button>
+            <button id="drawingCanvas15_reset" class="drawingResetBtn" type="button">Reset</button>
             <canvas id="drawingCanvas15" class="drawingCanvas" width="960" height="540"></canvas>
           </div>
 
           <div id="page16" class="page" style="background:url('https://daryeaye.github.io/gt1/1-16.jpg') no-repeat center/cover;">
-            <button id="drawingCanvas16_reset" class="drawingResetBtn">Reset</button>
+            <button id="drawingCanvas16_reset" class="drawingResetBtn" type="button">Reset</button>
             <canvas id="drawingCanvas16" class="drawingCanvas" width="480" height="540"></canvas>
-            <input type="text" class="textbox" style="position:absolute;left:590px;top:187px;width:340px;height:68px;" placeholder="Textbox 1">
-            <input type="text" class="textbox" style="position:absolute;left:605px;top:271px;width:338px;height:69px;" placeholder="Textbox 2">
-            <input type="text" class="textbox" style="position:absolute;left:548px;top:350px;width:339px;height:69px;" placeholder="Textbox 3">
-            <input type="text" class="textbox" style="position:absolute;left:570px;top:429px;width:339px;height:68px;" placeholder="Textbox 4">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p16-1" style="left:590px;top:187px;width:340px;height:68px;" placeholder="Textbox 1">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p16-2" style="left:605px;top:271px;width:338px;height:69px;" placeholder="Textbox 2">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p16-3" style="left:548px;top:350px;width:339px;height:69px;" placeholder="Textbox 3">
+            <input type="text" class="textbox cloud-field" data-savekey="lt1-p16-4" style="left:570px;top:429px;width:339px;height:68px;" placeholder="Textbox 4">
           </div>
 
           <div id="page17" class="page" style="background:url('https://daryeaye.github.io/gt1/1-17.jpg') no-repeat center/cover;"></div>
 
           <div id="page18" class="page" style="background:url('https://daryeaye.github.io/gt1/1-18.jpg') no-repeat center/cover;">
-            <input type="text" class="textbox caveat" id="unlockInput" style="left:372px;top:378px;width:172px;height:52px;" placeholder="Enter answer">
-            <button id="unlockBtn" style="position:absolute;left:550px;top:390px;font-family:'Caveat',cursive;font-size:16px;padding:5px;cursor:pointer;">Unlock</button>
+            <input type="text" class="textbox caveat cloud-field" data-savekey="lt1-p18-1" id="unlockInput" style="left:372px;top:378px;width:172px;height:52px;" placeholder="Enter answer">
+            <button id="unlockBtn" type="button">Unlock</button>
           </div>
 
           <div id="page19" class="page" style="background:url('https://daryeaye.github.io/gt1/1-19.jpg') no-repeat center/cover;">
@@ -444,15 +663,14 @@
               <div class="box" style="left:310px;top:435px;width:370px;height:45px;background-color:rgba(255,0,0,0.5);"></div>
             </a>
           </div>
+
+          <div id="pageTransitionOverlay"></div>
         </div>
       </div>
     </div>
 
-    <!-- SECOND CANVAS (same visible size as first: 960x540) -->
     <div id="role-container" aria-label="Role selection canvas">
       <div id="pdfStatus">Loading PDF...</div>
-
-      <!-- 1600x900 design stage scaled to 960x540 -->
       <div id="role-stage">
         <button class="role-hotspot" id="hotspot-officer"
                 style="left:195px; top:121px; width:328px; height:276px;"
@@ -470,34 +688,530 @@
                 style="left:502px; top:767px; width:596px; height:51px;"
                 aria-label="What is the file for?" title="What is the file for?"></button>
       </div>
-
-      <!-- PDF.js viewer (fills the 960x540 area) -->
       <div id="pdfViewer"></div>
+    </div>
+
+    <div id="openFileWrap"><button id="openFileBtn" type="button">Open the file on a new tab</button></div>
+  </div>
+
+  <div id="side-widget" class="collapsed" aria-label="Translation widget">
+    <button id="collapse-widget" type="button" aria-label="Collapse translation widget">–</button>
+    <p class="title">Need translation?</p>
+    <button id="select-text" type="button">Select Text</button>
+    <p><a href="https://translate.google.com/?sl=en&tl=es&op=images" target="_blank">Click me and paste from clipboard</a></p>
+  </div>
+
+  <div id="customPopupOverlay">
+    <div id="customPopupBox">
+      <div id="customPopupMessage"></div>
+      <div id="customPopupButtons"></div>
+    </div>
+  </div>
+
+  <div id="tutorialOverlay">
+    <div id="tutorialBox">
+      <img id="tutorialImage" src="" alt="Tutorial">
+      <button id="tutorialNext" type="button" aria-label="Next tutorial slide">›</button>
     </div>
   </div>
 
   <script>
-    /* -----------------------------
-       Main canvas paging (unchanged)
-       ----------------------------- */
-    let currentPage = 1, totalPages = 19, maxPageVisited = 1;
+    const TUTORIAL_IMAGES = [
+      "https://daryeaye.github.io/geotopia/t1.jpg",
+      "https://daryeaye.github.io/geotopia/t2.jpg",
+      "https://daryeaye.github.io/geotopia/t3.jpg"
+    ];
 
-    function nextPage() {
-      const pagesToCheck = [3,4,5,6,7,8,9,11,12,14,16,18];
-      if (pagesToCheck.includes(currentPage) && !checkAnswer(currentPage)) {
-        alert("Oops. Some answers are incorrect. Let's try again!");
-        return;
-      }
-      if (currentPage === totalPages) return;
-      currentPage++;
-      if (currentPage > maxPageVisited) maxPageVisited = currentPage;
-      showPage(currentPage);
+    const APP_ID = "losttreasure-pt1";
+    const WORKER_BASE_URL = "https://geotopia-powerfall-auth-api.daryeaye.workers.dev";
+    const SESSION_STORAGE = {
+      token: "lt1_auth_token",
+      username: "lt1_auth_username"
+    };
+    const TUTORIAL_STORAGE_KEY = "lt1_tutorial_seen";
+
+    const INTRO_URL = "https://www.youtube.com/watch?v=PFy9wgmUADc";
+    const REWARD_PDF_URL = "https://daryeaye.github.io/geotopia/jimi.pdf";
+    const WRONG_WARNING = "Oops. Some answers are incorrect. Let's try again!";
+
+    const ROLE_PDF_URLS = {
+      officer: "https://daryeaye.github.io/geotopia/GT1%20Officer+.pdf",
+      professor: "https://daryeaye.github.io/geotopia/GT1%20Professor+.pdf",
+      hacker: "https://daryeaye.github.io/geotopia/GT1%20Hacker+.pdf"
+    };
+
+    let currentPage = 1;
+    const totalPages = 19;
+    let maxPageVisited = 1;
+    let currentPdfUrl = "";
+    let currentPdfRole = "";
+    let pdfScrollTop = 0;
+
+    let authToken = "";
+    let loggedInUsername = "";
+    let autoSaveTimer = null;
+    let saveInFlight = false;
+    let saveQueued = false;
+    let isApplyingRemoteData = false;
+
+    let tutorialIndex = 0;
+
+    const drawings = {
+      drawingCanvas13: [],
+      drawingCanvas14: [],
+      drawingCanvas15: [],
+      drawingCanvas16: []
+    };
+
+    const draggableDefaults = {
+      ellipse4: { left: "509.5px", top: "108px" },
+      ellipse5: { left: "509.5px", top: "108px" },
+      ellipse8: { left: "510px", top: "361px" },
+      ellipse9: { left: "510px", top: "361px" }
+    };
+
+    const draggableState = JSON.parse(JSON.stringify(draggableDefaults));
+
+    function openIntro() {
+      window.open(INTRO_URL, "_blank");
     }
 
-    function prevPage() {
-      currentPage--;
-      if (currentPage < 1) currentPage = totalPages;
+    function setSaveStatus(text) {
+      document.getElementById("saveStatus").textContent = text;
+    }
+
+    function setAuthStatus(message, isError = false) {
+      const authStatus = document.getElementById("authStatus");
+      authStatus.textContent = message;
+      authStatus.style.color = isError ? "#b00020" : "#222";
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function closeCustomPopup() {
+      document.getElementById("customPopupOverlay").style.display = "none";
+      document.getElementById("customPopupMessage").textContent = "";
+      document.getElementById("customPopupButtons").innerHTML = "";
+    }
+
+    function showCustomPopup(message, buttons = [{ text: "OK", action: closeCustomPopup }]) {
+      const overlay = document.getElementById("customPopupOverlay");
+      const msg = document.getElementById("customPopupMessage");
+      const btnWrap = document.getElementById("customPopupButtons");
+
+      msg.textContent = message;
+      btnWrap.innerHTML = "";
+
+      buttons.forEach(btn => {
+        const b = document.createElement("button");
+        b.className = "popupBtn";
+        b.textContent = btn.text;
+        b.onclick = () => {
+          closeCustomPopup();
+          if (btn.action) btn.action();
+        };
+        btnWrap.appendChild(b);
+      });
+
+      overlay.style.display = "flex";
+    }
+
+    function showMessagePopup(message) {
+      showCustomPopup(message, [{ text: "OK", action: closeCustomPopup }]);
+    }
+
+    async function runCanvasTransition(action) {
+      const overlay = document.getElementById("pageTransitionOverlay");
+      overlay.style.pointerEvents = "auto";
+      overlay.style.opacity = "1";
+      await wait(280);
+      action();
+      await wait(60);
+      overlay.style.opacity = "0";
+      await wait(280);
+      overlay.style.pointerEvents = "none";
+    }
+
+    function updateAuthUI() {
+      const loggedIn = !!authToken;
+      document.getElementById("registerBtn").style.display = loggedIn ? "none" : "inline-block";
+      document.getElementById("loginBtn").style.display = loggedIn ? "none" : "inline-block";
+      document.getElementById("logoutBtn").style.display = loggedIn ? "inline-block" : "none";
+      if (loggedInUsername) {
+        document.getElementById("student-username").value = loggedInUsername;
+      }
+      setAuthStatus(loggedIn ? ("Logged in as " + (loggedInUsername || "student")) : "Not logged in", false);
+    }
+
+    function saveSessionLocally(token, username) {
+      authToken = token || "";
+      loggedInUsername = username || "";
+      localStorage.setItem(SESSION_STORAGE.token, authToken);
+      localStorage.setItem(SESSION_STORAGE.username, loggedInUsername);
+      updateAuthUI();
+    }
+
+    function clearSessionLocally() {
+      authToken = "";
+      loggedInUsername = "";
+      localStorage.removeItem(SESSION_STORAGE.token);
+      localStorage.removeItem(SESSION_STORAGE.username);
+      updateAuthUI();
+    }
+
+    function restoreSessionLocally() {
+      authToken = localStorage.getItem(SESSION_STORAGE.token) || "";
+      loggedInUsername = localStorage.getItem(SESSION_STORAGE.username) || "";
+      if (loggedInUsername) {
+        document.getElementById("student-username").value = loggedInUsername;
+      }
+      updateAuthUI();
+    }
+
+    function getInputSnapshot() {
+      const snapshot = {};
+      document.querySelectorAll("[data-savekey]").forEach(input => {
+        snapshot[input.dataset.savekey] = input.value || "";
+      });
+      return snapshot;
+    }
+
+    function applyInputSnapshot(snapshot) {
+      document.querySelectorAll("[data-savekey]").forEach(input => {
+        const key = input.dataset.savekey;
+        input.value = snapshot && Object.prototype.hasOwnProperty.call(snapshot, key)
+          ? (snapshot[key] ?? "")
+          : "";
+      });
+    }
+
+    function getDraggableSnapshot() {
+      const out = {};
+      document.querySelectorAll("[data-dragkey]").forEach(el => {
+        out[el.dataset.dragkey] = {
+          left: el.style.left,
+          top: el.style.top
+        };
+      });
+      return out;
+    }
+
+    function applyDraggableSnapshot(snapshot) {
+      const safe = snapshot && typeof snapshot === "object" ? snapshot : {};
+      Object.keys(draggableDefaults).forEach(key => {
+        const el = document.querySelector(`[data-dragkey="${key}"]`);
+        if (!el) return;
+        const saved = safe[key] || draggableDefaults[key];
+        el.style.left = saved.left || draggableDefaults[key].left;
+        el.style.top = saved.top || draggableDefaults[key].top;
+        draggableState[key] = {
+          left: el.style.left,
+          top: el.style.top
+        };
+      });
+    }
+
+    function payloadHasMeaningfulProgress(progress) {
+      const safe = progress && typeof progress === "object" ? progress : {};
+      const inputValues = safe.inputValues && typeof safe.inputValues === "object" ? safe.inputValues : {};
+      const incomingDrawings = safe.drawings && typeof safe.drawings === "object" ? safe.drawings : {};
+      const drags = safe.draggables && typeof safe.draggables === "object" ? safe.draggables : {};
+
+      const hasInputs = Object.values(inputValues).some(v => String(v || "").trim() !== "");
+      const hasDrawings = Object.values(incomingDrawings).some(arr => Array.isArray(arr) && arr.length > 0);
+      const hasDragMoves = Object.keys(drags).some(key => {
+        const def = draggableDefaults[key];
+        const cur = drags[key];
+        return def && cur && (cur.left !== def.left || cur.top !== def.top);
+      });
+      const hasOtherProgress =
+        Number(safe.currentPage || 1) > 1 ||
+        Number(safe.maxPageVisited || 1) > 1 ||
+        !!safe.currentPdfUrl;
+
+      return hasInputs || hasDrawings || hasDragMoves || hasOtherProgress;
+    }
+
+    function getPayloadProgressScore(progress) {
+      const safe = progress && typeof progress === "object" ? progress : {};
+      const inputValues = safe.inputValues && typeof safe.inputValues === "object" ? safe.inputValues : {};
+      const incomingDrawings = safe.drawings && typeof safe.drawings === "object" ? safe.drawings : {};
+
+      const filledInputs = Object.values(inputValues).filter(v => String(v || "").trim() !== "").length;
+      const drawingLines = Object.values(incomingDrawings).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+      const currentPageNum = Number.isInteger(Number(safe.currentPage)) ? Number(safe.currentPage) : 1;
+      const maxVisited = Number.isInteger(Number(safe.maxPageVisited)) ? Number(safe.maxPageVisited) : 1;
+      const pdfBonus = safe.currentPdfUrl ? 5 : 0;
+
+      return (maxVisited * 1000) + (currentPageNum * 100) + (filledInputs * 5) + drawingLines + pdfBonus;
+    }
+
+    function buildProgressPayload() {
+      const viewer = document.getElementById("pdfViewer");
+      return {
+        playerName: loggedInUsername,
+        currentPage,
+        maxPageVisited,
+        currentPdfUrl,
+        currentPdfRole,
+        pdfScrollTop: viewer ? viewer.scrollTop : 0,
+        inputValues: getInputSnapshot(),
+        drawings,
+        draggables: getDraggableSnapshot()
+      };
+    }
+
+    async function applyProgressPayload(payload) {
+      isApplyingRemoteData = true;
+
+      const safe = payload && typeof payload === "object" ? payload : {};
+      applyInputSnapshot(safe.inputValues || {});
+      applyDraggableSnapshot(safe.draggables || draggableDefaults);
+
+      currentPage = Number.isInteger(Number(safe.currentPage)) ? Number(safe.currentPage) : 1;
+      if (currentPage < 1) currentPage = 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      maxPageVisited = Number.isInteger(Number(safe.maxPageVisited)) ? Number(safe.maxPageVisited) : currentPage;
+      if (maxPageVisited < 1) maxPageVisited = 1;
+      if (maxPageVisited > totalPages) maxPageVisited = totalPages;
+
+      currentPdfUrl = String(safe.currentPdfUrl || "");
+      currentPdfRole = String(safe.currentPdfRole || "");
+      pdfScrollTop = Number.isFinite(Number(safe.pdfScrollTop)) ? Number(safe.pdfScrollTop) : 0;
+
+      const incomingDrawings = safe.drawings && typeof safe.drawings === "object" ? safe.drawings : {};
+      Object.keys(drawings).forEach(id => {
+        drawings[id] = Array.isArray(incomingDrawings[id]) ? incomingDrawings[id] : [];
+        redrawLines(id);
+      });
+
       showPage(currentPage);
+
+      if (currentPdfUrl) {
+        try {
+          await renderPdfIntoSecondCanvas(currentPdfUrl, currentPdfRole, pdfScrollTop);
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        exitPdfMode();
+      }
+
+      isApplyingRemoteData = false;
+    }
+
+    async function apiFetch(path, options = {}) {
+      const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      };
+
+      if (authToken) {
+        headers.Authorization = "Bearer " + authToken;
+      }
+
+      const response = await fetch(WORKER_BASE_URL + path, {
+        method: options.method || "GET",
+        headers,
+        body: options.body
+      });
+
+      const json = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(json.error || "Request failed");
+      }
+
+      return json;
+    }
+
+    async function registerUser() {
+      const usernameInput = document.getElementById("student-username");
+      const passwordInput = document.getElementById("student-password");
+
+      const username = usernameInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+
+      if (!username || !password) {
+        setAuthStatus("Enter username and password", true);
+        return;
+      }
+
+      setAuthStatus("Registering...");
+      try {
+        const result = await apiFetch("/api/register", {
+          method: "POST",
+          body: JSON.stringify({ username, password, appId: APP_ID })
+        });
+
+        saveSessionLocally(result.token, result.username || username);
+        await applyProgressPayload(result.saveData || {});
+        passwordInput.value = "";
+        setSaveStatus("Loaded");
+      } catch (err) {
+        setAuthStatus(err.message || "Register failed", true);
+      }
+    }
+
+    async function loginUser() {
+      const usernameInput = document.getElementById("student-username");
+      const passwordInput = document.getElementById("student-password");
+
+      const username = usernameInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+
+      if (!username || !password) {
+        setAuthStatus("Enter username and password", true);
+        return;
+      }
+
+      setAuthStatus("Logging in...");
+      try {
+        const localPayload = buildProgressPayload();
+
+        const result = await apiFetch("/api/login", {
+          method: "POST",
+          body: JSON.stringify({ username, password, appId: APP_ID })
+        });
+
+        saveSessionLocally(result.token, result.username || username);
+        passwordInput.value = "";
+
+        const remotePayload = result.saveData || {};
+        const localHas = payloadHasMeaningfulProgress(localPayload);
+        const remoteHas = payloadHasMeaningfulProgress(remotePayload);
+
+        if (localHas && remoteHas) {
+          const localScore = getPayloadProgressScore(localPayload);
+          const remoteScore = getPayloadProgressScore(remotePayload);
+
+          if (localScore >= remoteScore) {
+            setSaveStatus("Saving...");
+            await saveProgressToServer();
+            setSaveStatus("Saved");
+          } else {
+            await applyProgressPayload(remotePayload);
+            setSaveStatus("Loaded");
+          }
+        } else if (localHas) {
+          setSaveStatus("Saving...");
+          await saveProgressToServer();
+          setSaveStatus("Saved");
+        } else if (remoteHas) {
+          await applyProgressPayload(remotePayload);
+          setSaveStatus("Loaded");
+        } else {
+          setSaveStatus("Loaded");
+        }
+      } catch (err) {
+        setAuthStatus(err.message || "Login failed", true);
+      }
+    }
+
+    async function loadProgressFromServer() {
+      const result = await apiFetch("/api/load?appId=" + encodeURIComponent(APP_ID), {
+        method: "GET"
+      });
+
+      if (result.username) {
+        loggedInUsername = result.username;
+        localStorage.setItem(SESSION_STORAGE.username, loggedInUsername);
+      }
+
+      updateAuthUI();
+      await applyProgressPayload(result.saveData || {});
+      setSaveStatus("Loaded");
+    }
+
+    async function saveProgressToServer() {
+      if (!authToken || saveInFlight || isApplyingRemoteData) return;
+
+      saveInFlight = true;
+      try {
+        await apiFetch("/api/save", {
+          method: "POST",
+          body: JSON.stringify({
+            appId: APP_ID,
+            saveData: buildProgressPayload()
+          })
+        });
+        setAuthStatus("Logged in as " + (loggedInUsername || "student"));
+        setSaveStatus("Saved");
+      } catch (err) {
+        setAuthStatus(err.message || "Save failed", true);
+        setSaveStatus("Save failed");
+      } finally {
+        saveInFlight = false;
+        if (saveQueued) {
+          saveQueued = false;
+          saveProgressToServer();
+        }
+      }
+    }
+
+    function queueCloudSave() {
+      if (isApplyingRemoteData || !authToken) return;
+
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(() => {
+        if (saveInFlight) {
+          saveQueued = true;
+          return;
+        }
+        setSaveStatus("Saving...");
+        saveProgressToServer();
+      }, 900);
+    }
+
+    async function flushPendingSaveBeforeLogout() {
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = null;
+
+      if (!authToken || isApplyingRemoteData) return;
+
+      if (saveInFlight) {
+        saveQueued = true;
+        while (saveInFlight) {
+          await wait(80);
+        }
+      }
+
+      await saveProgressToServer();
+
+      while (saveInFlight) {
+        await wait(80);
+      }
+    }
+
+    async function logoutUser() {
+      try {
+        setSaveStatus("Saving...");
+        await flushPendingSaveBeforeLogout();
+      } catch (err) {
+        console.error(err);
+      }
+
+      try {
+        if (authToken) {
+          await apiFetch("/api/logout", {
+            method: "POST",
+            body: "{}"
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      clearSessionLocally();
+      document.getElementById("student-password").value = "";
+      setSaveStatus("Not saved yet");
+    }
+
+    function normalizeText(v) {
+      return String(v || "").trim().toLowerCase();
     }
 
     function showPage(p) {
@@ -505,50 +1219,190 @@
         document.getElementById("page" + i).classList.remove("active");
       }
       document.getElementById("page" + p).classList.add("active");
+      currentPage = p;
+
+      if (currentPage > maxPageVisited) {
+        maxPageVisited = currentPage;
+      }
+
       document.getElementById("next-btn").style.display = p === totalPages ? "none" : "inline-block";
       document.getElementById("prev-btn").style.display = p === 1 ? "none" : "inline-block";
       updateProgress();
     }
 
     function updateProgress() {
-      let p = (maxPageVisited / totalPages) * 100;
-      document.getElementById("progress").style.width = p + "%";
-      document.getElementById("progressText").innerText = p.toFixed(0) + "% completed";
+      const pct = (maxPageVisited / totalPages) * 100;
+      document.getElementById("progress").style.width = pct + "%";
+      document.getElementById("progressText").innerText = pct.toFixed(0) + "% completed";
+    }
+
+    function getPageInputValues(pageNum) {
+      return Array.from(document.querySelectorAll("#page" + pageNum + " .textbox"));
+    }
+
+    function checkAnswer(pageNum) {
+      let valid = true;
+      switch (pageNum) {
+        case 3: {
+          const inputs = getPageInputValues(3);
+          let filled = 0;
+          inputs.forEach(input => { if (input.value.trim() !== "") filled++; });
+          if (filled < 5) valid = false;
+          break;
+        }
+        case 4: {
+          const inputs = getPageInputValues(4);
+          if (inputs.length < 2) valid = false;
+          else {
+            if (!inputs[0].value.includes("60")) valid = false;
+            if (!inputs[1].value.toLowerCase().includes("no")) valid = false;
+          }
+          break;
+        }
+        case 5: {
+          const inputs = getPageInputValues(5);
+          if (inputs.length < 1 || !inputs[0].value.includes("60")) valid = false;
+          break;
+        }
+        case 6: {
+          const inputs = getPageInputValues(6);
+          if (inputs.length < 2) valid = false;
+          else {
+            if (!inputs[0].value.includes("13")) valid = false;
+            if (!inputs[1].value.includes("60")) valid = false;
+          }
+          break;
+        }
+        case 7: {
+          const inputs = getPageInputValues(7);
+          if (inputs.length < 2) valid = false;
+          else {
+            if (!inputs[0].value.includes("3")) valid = false;
+            if (!inputs[1].value.toLowerCase().includes("zoid")) valid = false;
+          }
+          break;
+        }
+        case 8: {
+          const inputs = getPageInputValues(8);
+          if (inputs.length < 1 || !inputs[0].value.includes("10")) valid = false;
+          break;
+        }
+        case 9: {
+          const inputs = getPageInputValues(9);
+          if (inputs.length < 1 || !inputs[0].value.includes("20")) valid = false;
+          break;
+        }
+        case 11: {
+          const inputs = getPageInputValues(11);
+          if (inputs.length < 2) valid = false;
+          else {
+            if (!inputs[0].value.includes("16.8")) valid = false;
+            if (!inputs[1].value.toLowerCase().includes("tuse")) valid = false;
+          }
+          break;
+        }
+        case 12: {
+          const inputs = getPageInputValues(12);
+          if (inputs.length < 1 || !inputs[0].value.includes("9")) valid = false;
+          break;
+        }
+        case 14: {
+          const inputs = getPageInputValues(14);
+          if (inputs.length < 4) valid = false;
+          else if (!inputs[3].value.includes("127")) valid = false;
+          break;
+        }
+        case 16: {
+          const inputs = getPageInputValues(16);
+          if (inputs.length < 4) valid = false;
+          else if (!inputs[3].value.includes("65")) valid = false;
+          break;
+        }
+        case 18: {
+          const input = document.getElementById("unlockInput");
+          if (!input || input.value.trim() !== "200") valid = false;
+          break;
+        }
+      }
+      return valid;
+    }
+
+    async function nextPage() {
+      const pagesToCheck = [3,4,5,6,7,8,9,11,12,14,16,18];
+      if (pagesToCheck.includes(currentPage) && !checkAnswer(currentPage)) {
+        showMessagePopup(WRONG_WARNING);
+        return;
+      }
+
+      if (currentPage === totalPages) return;
+
+      await runCanvasTransition(() => {
+        currentPage++;
+        showPage(currentPage);
+      });
+      queueCloudSave();
+    }
+
+    function prevPage() {
+      currentPage--;
+      if (currentPage < 1) currentPage = totalPages;
+      showPage(currentPage);
+      queueCloudSave();
+    }
+
+    function redrawLines(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      (drawings[canvasId] || []).forEach(line => {
+        ctx.beginPath();
+        ctx.moveTo(line.startX, line.startY);
+        ctx.lineTo(line.endX, line.endY);
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
     }
 
     function initDrawingCanvas(canvasId, resetBtnId, preloadDefaults = false, freeDraw = false) {
-      const canvas = document.getElementById(canvasId),
-            ctx = canvas.getContext("2d"),
-            resetBtn = document.getElementById(resetBtnId);
+      const canvas = document.getElementById(canvasId);
+      const resetBtn = document.getElementById(resetBtnId);
+      const ctx = canvas.getContext("2d");
 
-      let drawing = false, startX = 0, startY = 0, lines = [];
+      let drawing = false;
+      let startX = 0;
+      let startY = 0;
+      const maxLines = 2;
 
       function getMousePos(e) {
         const rect = canvas.getBoundingClientRect();
-        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        return {
+          x: (e.clientX - rect.left) * (canvas.width / rect.width),
+          y: (e.clientY - rect.top) * (canvas.height / rect.height)
+        };
       }
 
-      function redraw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        lines.forEach(line => {
-          ctx.beginPath();
-          ctx.moveTo(line.startX, line.startY);
-          ctx.lineTo(line.endX, line.endY);
-          ctx.strokeStyle = "red";
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        });
+      function loadDefaults() {
+        drawings[canvasId] = [];
+        if (preloadDefaults) {
+          drawings[canvasId].push({ startX: 255, startY: 89, endX: 382, endY: 89 });
+          drawings[canvasId].push({ startX: 277, startY: 117, endX: 404, endY: 117 });
+        }
       }
 
-      if (preloadDefaults) {
-        lines.push({ startX: 255, startY: 89, endX: 382, endY: 89 });
-        lines.push({ startX: 277, startY: 117, endX: 404, endY: 117 });
-        redraw();
+      if (!Array.isArray(drawings[canvasId])) {
+        loadDefaults();
       }
+      if (drawings[canvasId].length === 0 && preloadDefaults) {
+        loadDefaults();
+      }
+      redrawLines(canvasId);
 
       canvas.addEventListener("mousedown", function (e) {
-        if (lines.length >= 2 && !freeDraw) return;
-        let pos = getMousePos(e);
+        if ((drawings[canvasId] || []).length >= maxLines && !freeDraw) return;
+        const pos = getMousePos(e);
         drawing = true;
         startX = pos.x;
         startY = pos.y;
@@ -556,8 +1410,8 @@
 
       canvas.addEventListener("mousemove", function (e) {
         if (!drawing) return;
-        redraw();
-        let pos = getMousePos(e);
+        redrawLines(canvasId);
+        const pos = getMousePos(e);
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.lineTo(pos.x, pos.y);
@@ -569,83 +1423,75 @@
       canvas.addEventListener("mouseup", function (e) {
         if (!drawing) return;
         drawing = false;
-        let pos = getMousePos(e);
-        lines.push({ startX: startX, startY: startY, endX: pos.x, endY: pos.y });
-        redraw();
+        const pos = getMousePos(e);
+        drawings[canvasId].push({ startX, startY, endX: pos.x, endY: pos.y });
+        redrawLines(canvasId);
+        queueCloudSave();
       });
 
       canvas.addEventListener("mouseleave", function () {
         if (drawing) {
           drawing = false;
-          redraw();
+          redrawLines(canvasId);
         }
       });
 
       resetBtn.addEventListener("click", function () {
-        lines = [];
-        if (preloadDefaults) {
-          lines.push({ startX: 255, startY: 89, endX: 382, endY: 89 });
-          lines.push({ startX: 277, startY: 117, endX: 404, endY: 117 });
-        }
-        redraw();
+        loadDefaults();
+        redrawLines(canvasId);
+        queueCloudSave();
       });
     }
 
     function initUnlockButton() {
-      const unlockBtn = document.getElementById("unlockBtn"),
-            unlockInput = document.getElementById("unlockInput");
-    
-      unlockBtn.addEventListener("click", function () {
+      const unlockBtn = document.getElementById("unlockBtn");
+      const unlockInput = document.getElementById("unlockInput");
+
+      unlockBtn.addEventListener("click", async function () {
         if (unlockInput.value.trim() === "200") {
-    
-          // 1️⃣ Open the PDF
-          window.open("https://daryeaye.github.io/geotopia/jimi.pdf", "_blank");
-    
-          // 2️⃣ Move to page 19
-          currentPage = 19;
-          if (currentPage > maxPageVisited) maxPageVisited = currentPage;
-          showPage(currentPage);
-    
+          window.open(REWARD_PDF_URL, "_blank");
+
+          await runCanvasTransition(() => {
+            currentPage = 19;
+            if (currentPage > maxPageVisited) maxPageVisited = currentPage;
+            showPage(currentPage);
+          });
+          queueCloudSave();
         } else {
-          alert("Oops. Some answers are incorrect. Let's try again!");
+          showMessagePopup(WRONG_WARNING);
         }
       });
     }
 
-
-    function confirmName() {
-      const nameInput = document.getElementById("username"),
-            name = nameInput.value.trim();
-
-      if (name !== "") {
-        localStorage.setItem("username", name);
-        nameInput.disabled = true;
-        alert("Name confirmed as: " + name);
-      } else {
-        alert("Please enter a name.");
-      }
-    }
-
-    function openIntro(){
-    window.open("https://www.youtube.com/watch?v=PFy9wgmUADc", "_blank");
-    }
-
-    /* -----------------------------
-       PDF.js viewer (2nd canvas)
-       ----------------------------- */
     function initPdfJs() {
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     }
 
-    async function renderPdfIntoSecondCanvas(pdfUrl) {
+    function exitPdfMode() {
+      const roleContainer = document.getElementById("role-container");
+      const viewer = document.getElementById("pdfViewer");
+      const status = document.getElementById("pdfStatus");
+      viewer.innerHTML = "";
+      viewer.style.display = "none";
+      viewer.scrollTop = 0;
+      status.style.display = "none";
+      roleContainer.classList.remove("pdf-mode");
+      currentPdfUrl = "";
+      currentPdfRole = "";
+      pdfScrollTop = 0;
+    }
+
+    async function renderPdfIntoSecondCanvas(pdfUrl, roleName = "", targetScrollTop = 0) {
+      currentPdfUrl = pdfUrl || "";
+      currentPdfRole = roleName || "";
+      pdfScrollTop = targetScrollTop || 0;
+
       const roleContainer = document.getElementById("role-container");
       const viewer = document.getElementById("pdfViewer");
       const status = document.getElementById("pdfStatus");
 
-      // Hide role-stage (background + hotspots)
       roleContainer.classList.add("pdf-mode");
-
       viewer.style.display = "block";
       viewer.innerHTML = "";
       viewer.scrollTop = 0;
@@ -659,11 +1505,9 @@
 
         status.textContent = "Rendering pages...";
 
-        // Fit to viewer width
-        const targetWidth = 920; // a bit padding inside 960
+        const targetWidth = 920;
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
           const page = await pdf.getPage(pageNum);
-
           const viewport1 = page.getViewport({ scale: 1 });
           const scale = targetWidth / viewport1.width;
           const viewport = page.getViewport({ scale });
@@ -680,256 +1524,258 @@
         }
 
         status.style.display = "none";
+        viewer.scrollTop = targetScrollTop || 0;
+        queueCloudSave();
       } catch (err) {
         console.error("PDF.js render error:", err);
-        status.textContent = "Failed to load PDF (see Console).";
+        status.textContent = "Failed to load PDF.";
       }
     }
 
     function initSecondCanvasHotspots() {
       document.getElementById("hotspot-officer").addEventListener("click", function () {
-        renderPdfIntoSecondCanvas("https://daryeaye.github.io/geotopia/GT1%20Officer+.pdf");
+        renderPdfIntoSecondCanvas(ROLE_PDF_URLS.officer, "officer", 0);
       });
 
       document.getElementById("hotspot-professor").addEventListener("click", function () {
-        renderPdfIntoSecondCanvas("https://daryeaye.github.io/geotopia/GT1%20Professor+.pdf");
+        renderPdfIntoSecondCanvas(ROLE_PDF_URLS.professor, "professor", 0);
       });
 
       document.getElementById("hotspot-hacker").addEventListener("click", function () {
-        renderPdfIntoSecondCanvas("https://daryeaye.github.io/geotopia/GT1%20Hacker+.pdf");
+        renderPdfIntoSecondCanvas(ROLE_PDF_URLS.hacker, "hacker", 0);
       });
 
       document.getElementById("hotspot-video").addEventListener("click", function () {
         window.open("https://www.youtube.com/watch?v=Fj98o3aFfk8", "_blank");
       });
+
+      document.getElementById("pdfViewer").addEventListener("scroll", function () {
+        pdfScrollTop = this.scrollTop;
+        queueCloudSave();
+      });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-      initPdfJs();
-
-      initDrawingCanvas("drawingCanvas13", "drawingCanvas13_reset", false, false);
-      initDrawingCanvas("drawingCanvas15", "drawingCanvas15_reset", false, false);
-      initDrawingCanvas("drawingCanvas14", "drawingCanvas14_reset", false, false);
-      initDrawingCanvas("drawingCanvas16", "drawingCanvas16_reset", false, false);
-
-      const inputs = document.querySelectorAll('input[type="text"]');
-      inputs.forEach((input, index) => {
-        const key = "textbox-" + index;
-        input.dataset.key = key;
-        if (localStorage.getItem(key)) input.value = localStorage.getItem(key);
-        input.addEventListener("input", function () {
-          localStorage.setItem(key, input.value);
-        });
+    function initOpenFileButton() {
+      document.getElementById("openFileBtn").addEventListener("click", function () {
+        if (!currentPdfUrl) {
+          showMessagePopup("Please select a role file first.");
+          return;
+        }
+        window.open(currentPdfUrl, "_blank");
       });
+    }
 
+    function initDraggables() {
       document.querySelectorAll(".draggable").forEach(el => {
         el.addEventListener("mousedown", function (e) {
-          const style = window.getComputedStyle(el),
-                startLeft = parseFloat(style.left),
-                startTop = parseFloat(style.top),
-                startX = e.clientX,
-                startY = e.clientY;
+          const style = window.getComputedStyle(el);
+          const startLeft = parseFloat(style.left);
+          const startTop = parseFloat(style.top);
+          const startX = e.clientX;
+          const startY = e.clientY;
 
-          function mouseMoveHandler(e) {
-            const dx = e.clientX - startX,
-                  dy = e.clientY - startY;
+          function mouseMoveHandler(ev) {
+            const dx = ev.clientX - startX;
+            const dy = ev.clientY - startY;
 
             el.style.left = (startLeft + dx) + "px";
             el.style.top = (startTop + dy) + "px";
           }
 
-          document.addEventListener("mousemove", mouseMoveHandler);
-          document.addEventListener("mouseup", function onMouseUp() {
+          function onMouseUp() {
             document.removeEventListener("mousemove", mouseMoveHandler);
             document.removeEventListener("mouseup", onMouseUp);
-          });
+            const key = el.dataset.dragkey;
+            if (key) {
+              draggableState[key] = {
+                left: el.style.left,
+                top: el.style.top
+              };
+              queueCloudSave();
+            }
+          }
 
+          document.addEventListener("mousemove", mouseMoveHandler);
+          document.addEventListener("mouseup", onMouseUp);
           e.preventDefault();
         });
       });
-
-      initUnlockButton();
-      initSecondCanvasHotspots();
-      showPage(currentPage);
-    });
-
-    function checkAnswer(pageNum) {
-      let valid = true;
-      switch (pageNum) {
-        case 3: {
-          const inputs = document.querySelectorAll("#page3 .textbox");
-          let filled = 0;
-          inputs.forEach(input => { if (input.value.trim() !== "") filled++; });
-          if (filled < 5) valid = false;
-          break;
-        }
-        case 4: {
-          const inputs = document.querySelectorAll("#page4 .textbox");
-          if (inputs.length < 2) valid = false;
-          else {
-            if (!inputs[0].value.includes("60")) valid = false;
-            if (!inputs[1].value.toLowerCase().includes("no")) valid = false;
-          }
-          break;
-        }
-        case 5: {
-          const inputs = document.querySelectorAll("#page5 .textbox");
-          if (inputs.length < 1 || !inputs[0].value.includes("60")) valid = false;
-          break;
-        }
-        case 6: {
-          const inputs = document.querySelectorAll("#page6 .textbox");
-          if (inputs.length < 2) valid = false;
-          else {
-            if (!inputs[0].value.includes("13")) valid = false;
-            if (!inputs[1].value.includes("60")) valid = false;
-          }
-          break;
-        }
-        case 7: {
-          const inputs = document.querySelectorAll("#page7 .textbox");
-          if (inputs.length < 2) valid = false;
-          else {
-            if (!inputs[0].value.includes("3")) valid = false;
-            if (!inputs[1].value.toLowerCase().includes("zoid")) valid = false;
-          }
-          break;
-        }
-        case 8: {
-          const inputs = document.querySelectorAll("#page8 .textbox");
-          if (inputs.length < 1 || !inputs[0].value.includes("10")) valid = false;
-          break;
-        }
-        case 9: {
-          const inputs = document.querySelectorAll("#page9 .textbox");
-          if (inputs.length < 1 || !inputs[0].value.includes("20")) valid = false;
-          break;
-        }
-        case 11: {
-          const inputs = document.querySelectorAll("#page11 .textbox");
-          if (inputs.length < 2) valid = false;
-          else {
-            if (!inputs[0].value.includes("16.8")) valid = false;
-            if (!inputs[1].value.toLowerCase().includes("tuse")) valid = false;
-          }
-          break;
-        }
-        case 12: {
-          const inputs = document.querySelectorAll("#page12 .textbox");
-          if (inputs.length < 1 || !inputs[0].value.includes("9")) valid = false;
-          break;
-        }
-        case 14: {
-          const inputs = document.querySelectorAll("#page14 .textbox");
-          if (inputs.length < 4) valid = false;
-          else {
-            if (!inputs[3].value.includes("127")) valid = false;
-          }
-          break;
-        }
-        case 16: {
-          const inputs = document.querySelectorAll("#page16 .textbox");
-          if (inputs.length < 4) valid = false;
-          else {
-            if (!inputs[3].value.includes("65")) valid = false;
-          }
-          break;
-        }
-        case 18: {
-          const input = document.querySelector("#page18 .textbox");
-          if (!input || input.value.trim() !== "200") valid = false;
-          break;
-        }
-      }
-      return valid;
     }
-  </script>
 
-  <div id="side-widget">
-    <p class="title">Need translation?</p>
-    <button id="select-text">Select Text</button>
-    <p>
-      <a href="https://translate.google.com/?sl=en&tl=es&op=images" target="_blank">
-        Click me and paste from clipboard
-      </a>
-    </p>
-  </div>
+    function initTranslatorWidget() {
+      const widget = document.getElementById("side-widget");
+      const collapseBtn = document.getElementById("collapse-widget");
 
-  <script>
-    document.getElementById("select-text").addEventListener("click", function () {
-      const overlay = document.createElement("div");
-      overlay.id = "selection-overlay";
-      document.body.appendChild(overlay);
-
-      let startX, startY, selectionBox;
-
-      overlay.addEventListener("mousedown", function (e) {
-        startX = e.clientX;
-        startY = e.clientY;
-
-        selectionBox = document.createElement("div");
-        selectionBox.id = "selection-box";
-        selectionBox.style.left = startX + "px";
-        selectionBox.style.top = startY + "px";
-        selectionBox.style.width = "0px";
-        selectionBox.style.height = "0px";
-        overlay.appendChild(selectionBox);
-
-        function mouseMoveHandler(e) {
-          const currentX = e.clientX,
-                currentY = e.clientY,
-                rectLeft = Math.min(startX, currentX),
-                rectTop = Math.min(startY, currentY),
-                rectWidth = Math.abs(currentX - startX),
-                rectHeight = Math.abs(currentY - startY);
-
-          selectionBox.style.left = rectLeft + "px";
-          selectionBox.style.top = rectTop + "px";
-          selectionBox.style.width = rectWidth + "px";
-          selectionBox.style.height = rectHeight + "px";
+      widget.addEventListener("click", function () {
+        if (widget.classList.contains("collapsed")) {
+          widget.classList.remove("collapsed");
         }
+      });
 
-        function mouseUpHandler() {
-          overlay.removeEventListener("mousemove", mouseMoveHandler);
-          overlay.removeEventListener("mouseup", mouseUpHandler);
+      collapseBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        widget.classList.add("collapsed");
+      });
+    }
 
-          const boxRect = selectionBox.getBoundingClientRect();
-          document.body.removeChild(overlay);
+    function initTranslationScreenshotTool() {
+      document.getElementById("select-text").addEventListener("click", function () {
+        const overlay = document.createElement("div");
+        overlay.id = "selection-overlay";
+        document.body.appendChild(overlay);
 
-          const target = document.getElementById("container"),
-                targetRect = target.getBoundingClientRect();
+        let startX, startY, selectionBox;
 
-          html2canvas(target, { useCORS: true, allowTaint: false }).then(canvas => {
-            const scaleFactor = canvas.width / targetRect.width,
-                  sx = (boxRect.left - targetRect.left) * scaleFactor,
-                  sy = (boxRect.top - targetRect.top) * scaleFactor,
-                  sWidth = boxRect.width * scaleFactor,
-                  sHeight = boxRect.height * scaleFactor,
-                  croppedCanvas = document.createElement("canvas");
+        overlay.addEventListener("mousedown", function (e) {
+          startX = e.clientX;
+          startY = e.clientY;
 
-            croppedCanvas.width = sWidth;
-            croppedCanvas.height = sHeight;
+          selectionBox = document.createElement("div");
+          selectionBox.id = "selection-box";
+          selectionBox.style.left = startX + "px";
+          selectionBox.style.top = startY + "px";
+          selectionBox.style.width = "0px";
+          selectionBox.style.height = "0px";
+          overlay.appendChild(selectionBox);
 
-            const ctx = croppedCanvas.getContext("2d");
-            ctx.drawImage(canvas, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
+          function mouseMoveHandler(e) {
+            const currentX = e.clientX;
+            const currentY = e.clientY;
+            const rectLeft = Math.min(startX, currentX);
+            const rectTop = Math.min(startY, currentY);
+            const rectWidth = Math.abs(currentX - startX);
+            const rectHeight = Math.abs(currentY - startY);
 
-            croppedCanvas.toBlob(blob => {
-              if (blob) {
+            selectionBox.style.left = rectLeft + "px";
+            selectionBox.style.top = rectTop + "px";
+            selectionBox.style.width = rectWidth + "px";
+            selectionBox.style.height = rectHeight + "px";
+          }
+
+          function mouseUpHandler() {
+            overlay.removeEventListener("mousemove", mouseMoveHandler);
+            overlay.removeEventListener("mouseup", mouseUpHandler);
+
+            const boxRect = selectionBox.getBoundingClientRect();
+            document.body.removeChild(overlay);
+
+            const target = document.getElementById("container");
+            const targetRect = target.getBoundingClientRect();
+
+            html2canvas(target, { useCORS: true, allowTaint: false }).then(canvas => {
+              const scaleFactor = canvas.width / targetRect.width;
+              const sx = (boxRect.left - targetRect.left) * scaleFactor;
+              const sy = (boxRect.top - targetRect.top) * scaleFactor;
+              const sWidth = boxRect.width * scaleFactor;
+              const sHeight = boxRect.height * scaleFactor;
+
+              const croppedCanvas = document.createElement("canvas");
+              croppedCanvas.width = sWidth;
+              croppedCanvas.height = sHeight;
+
+              const ctx = croppedCanvas.getContext("2d");
+              ctx.drawImage(canvas, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
+
+              croppedCanvas.toBlob(blob => {
+                if (!blob) return;
+
                 const item = new ClipboardItem({ "image/png": blob });
                 navigator.clipboard.write([item]).then(() => {
-                  alert("Screenshot copied to clipboard.");
+                  showMessagePopup("Screenshot copied to clipboard.");
                 }).catch(err => {
                   console.error("Failed to copy screenshot to clipboard", err);
-                  alert("Failed to copy screenshot to clipboard.");
+                  showMessagePopup("Failed to copy screenshot to clipboard.");
                 });
-              }
+              });
             });
-          });
-        }
+          }
 
-        overlay.addEventListener("mousemove", mouseMoveHandler);
-        overlay.addEventListener("mouseup", mouseUpHandler);
+          overlay.addEventListener("mousemove", mouseMoveHandler);
+          overlay.addEventListener("mouseup", mouseUpHandler);
+        });
       });
+    }
+
+    function initCloudSaveInputs() {
+      document.querySelectorAll("[data-savekey]").forEach(input => {
+        input.addEventListener("input", function () {
+          queueCloudSave();
+        });
+      });
+    }
+
+    function showTutorial() {
+      const alreadySeen = localStorage.getItem(TUTORIAL_STORAGE_KEY);
+      if (alreadySeen === "yes") return;
+
+      const overlay = document.getElementById("tutorialOverlay");
+      const img = document.getElementById("tutorialImage");
+
+      tutorialIndex = 0;
+      img.src = TUTORIAL_IMAGES[tutorialIndex];
+      overlay.style.display = "flex";
+    }
+
+    function nextTutorialSlide() {
+      const overlay = document.getElementById("tutorialOverlay");
+      const img = document.getElementById("tutorialImage");
+
+      tutorialIndex++;
+
+      if (tutorialIndex >= TUTORIAL_IMAGES.length) {
+        overlay.style.display = "none";
+        localStorage.setItem(TUTORIAL_STORAGE_KEY, "yes");
+        return;
+      }
+
+      img.src = TUTORIAL_IMAGES[tutorialIndex];
+    }
+
+    function initTutorial() {
+      const nextBtn = document.getElementById("tutorialNext");
+      nextBtn.addEventListener("click", nextTutorialSlide);
+
+      TUTORIAL_IMAGES.forEach(url => {
+        const pre = new Image();
+        pre.src = url;
+      });
+
+      showTutorial();
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      restoreSessionLocally();
+
+      initPdfJs();
+      initDrawingCanvas("drawingCanvas13", "drawingCanvas13_reset", false, false);
+      initDrawingCanvas("drawingCanvas14", "drawingCanvas14_reset", false, false);
+      initDrawingCanvas("drawingCanvas15", "drawingCanvas15_reset", false, false);
+      initDrawingCanvas("drawingCanvas16", "drawingCanvas16_reset", false, false);
+      initUnlockButton();
+      initSecondCanvasHotspots();
+      initOpenFileButton();
+      initDraggables();
+      initTranslatorWidget();
+      initTranslationScreenshotTool();
+      initCloudSaveInputs();
+
+      document.getElementById("registerBtn").addEventListener("click", registerUser);
+      document.getElementById("loginBtn").addEventListener("click", loginUser);
+      document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+
+      showPage(currentPage);
+
+      if (authToken) {
+        try {
+          await loadProgressFromServer();
+        } catch (err) {
+          console.error(err);
+          clearSessionLocally();
+          showPage(currentPage);
+        }
+      }
+
+      initTutorial();
     });
   </script>
 
