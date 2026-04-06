@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -116,20 +118,24 @@
       gap: 8px;
       flex-wrap: wrap;
     }
-
-    #student-username, #student-password {
-      font-size: 16px;
-      padding: 5px 8px;
-      width: 150px;
-      box-sizing: border-box;
-    }
-
-    #registerBtn, #loginBtn, #logoutBtn, #introBtn, #openFileBtn, #prev-btn, #next-btn,
-    #unlockBtn, #collapse-widget, .drawingResetBtn, #side-widget button:not(#collapse-widget) {
+    #logoutBtn,
+    #introBtn,
+    #authRegisterBtn,
+    #authLoginBtn,
+    #openFileBtn,
+    #prev-btn,
+    #next-btn,
+    #unlockBtn,
+    #collapse-widget,
+    .drawingResetBtn,
+    #side-widget button:not(#collapse-widget) {
       font-family: "Love Ya Like A Sister", cursive;
     }
 
-    #registerBtn, #loginBtn, #logoutBtn, #introBtn {
+    #logoutBtn,
+    #introBtn,
+    #authRegisterBtn,
+    #authLoginBtn {
       font-size: 22px;
       padding: 6px 12px;
       cursor: pointer;
@@ -145,6 +151,73 @@
       color: #222;
       min-width: 170px;
       text-align: right;
+    }
+
+    #authOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      z-index: 15000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #authOverlayBox {
+      width: min(430px, 88vw);
+      background: #fffdf7;
+      border: 3px solid #000;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      padding: 24px 20px 18px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    #authOverlayTitle {
+      font-family: "Love Ya Like A Sister", cursive;
+      font-size: 34px;
+      line-height: 1.05;
+      margin-bottom: 10px;
+      color: #111;
+    }
+
+    #authOverlayText {
+      font-family: "Comic Sans MS", sans-serif;
+      font-size: 16px;
+      line-height: 1.35;
+      color: #222;
+      margin-bottom: 14px;
+    }
+
+    #auth-username,
+    #auth-password {
+      width: 100%;
+      font-size: 18px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-family: "Comic Sans MS", sans-serif;
+      background: #fff;
+    }
+
+    #authOverlayButtons {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    #authModalStatus {
+      font-family: "Comic Sans MS", sans-serif;
+      font-size: 14px;
+      line-height: 1.3;
+      min-height: 18px;
+      margin-top: 12px;
+      color: #222;
     }
 
     #progressBar {
@@ -537,10 +610,6 @@
     <div id="header">
       <div id="topAuthRow">
         <div id="topAuthLeft">
-          <input type="text" id="student-username" placeholder="Username" autocomplete="username" />
-          <input type="password" id="student-password" placeholder="Password" autocomplete="current-password" />
-          <button id="registerBtn" type="button">Register</button>
-          <button id="loginBtn" type="button">Log In</button>
           <button id="logoutBtn" type="button" style="display:none;">Log Out</button>
           <button id="introBtn" type="button" onclick="openIntro()">Intro</button>
         </div>
@@ -699,7 +768,22 @@
     <p><a href="https://translate.google.com/?sl=en&tl=es&op=images" target="_blank">Click me and paste from clipboard</a></p>
   </div>
 
-  <div id="customPopupOverlay">
+  
+  <div id="authOverlay">
+    <div id="authOverlayBox">
+      <div id="authOverlayTitle">Sign in to start</div>
+      <div id="authOverlayText">Please log in or register before entering the quest. Username cannot contain spaces.</div>
+      <input type="text" id="auth-username" placeholder="Username" autocomplete="username" />
+      <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password" />
+      <div id="authOverlayButtons">
+        <button id="authRegisterBtn" type="button">Register</button>
+        <button id="authLoginBtn" type="button">Log In</button>
+      </div>
+      <div id="authModalStatus"></div>
+    </div>
+  </div>
+
+<div id="customPopupOverlay">
     <div id="customPopupBox">
       <div id="customPopupMessage"></div>
       <div id="customPopupButtons"></div>
@@ -715,7 +799,6 @@
 
   <script>
     const TUTORIAL_IMAGES = [
-      "https://daryeaye.github.io/geotopia/t1.jpg",
       "https://daryeaye.github.io/geotopia/t2.jpg",
       "https://daryeaye.github.io/geotopia/t3.jpg"
     ];
@@ -832,15 +915,50 @@
       overlay.style.pointerEvents = "none";
     }
 
+    
+    function setAuthModalStatus(message, isError = false) {
+      const status = document.getElementById("authModalStatus");
+      if (!status) return;
+      status.textContent = message || "";
+      status.style.color = isError ? "#b00020" : "#222";
+    }
+
+    function openAuthOverlay(prefillUsername = "") {
+      const overlay = document.getElementById("authOverlay");
+      const usernameInput = document.getElementById("auth-username");
+      const passwordInput = document.getElementById("auth-password");
+
+      if (prefillUsername) {
+        usernameInput.value = prefillUsername;
+      } else if (loggedInUsername) {
+        usernameInput.value = loggedInUsername;
+      }
+
+      passwordInput.value = "";
+      setAuthModalStatus("Please sign in to continue.", false);
+      overlay.style.display = "flex";
+      usernameInput.focus();
+    }
+
+    function closeAuthOverlay() {
+      const overlay = document.getElementById("authOverlay");
+      overlay.style.display = "none";
+      setAuthModalStatus("", false);
+    }
+
+    function maybeRequireAuthOverlay() {
+      if (!authToken) {
+        openAuthOverlay(loggedInUsername || "");
+      }
+    }
+
     function updateAuthUI() {
       const loggedIn = !!authToken;
-      document.getElementById("registerBtn").style.display = loggedIn ? "none" : "inline-block";
-      document.getElementById("loginBtn").style.display = loggedIn ? "none" : "inline-block";
       document.getElementById("logoutBtn").style.display = loggedIn ? "inline-block" : "none";
-      if (loggedInUsername) {
-        document.getElementById("student-username").value = loggedInUsername;
-      }
       setAuthStatus(loggedIn ? ("Logged in as " + (loggedInUsername || "student")) : "Not logged in", false);
+      if (loggedIn) {
+        closeAuthOverlay();
+      }
     }
 
     function saveSessionLocally(token, username) {
@@ -862,9 +980,6 @@
     function restoreSessionLocally() {
       authToken = localStorage.getItem(SESSION_STORAGE.token) || "";
       loggedInUsername = localStorage.getItem(SESSION_STORAGE.username) || "";
-      if (loggedInUsername) {
-        document.getElementById("student-username").value = loggedInUsername;
-      }
       updateAuthUI();
     }
 
@@ -911,52 +1026,8 @@
       });
     }
 
-function payloadHasMeaningfulProgress(progress) {
-  const safe = progress && typeof progress === "object" ? progress : {};
-  const inputValues = safe.inputValues && typeof safe.inputValues === "object" ? safe.inputValues : {};
-  const incomingDrawings = safe.drawings && typeof safe.drawings === "object" ? safe.drawings : {};
-  const drags = safe.draggables && typeof safe.draggables === "object" ? safe.draggables : {};
+        function buildProgressPayload() {
 
-  const hasInputs = Object.values(inputValues).some(v => String(v || "").trim() !== "");
-  const hasDrawings = Object.values(incomingDrawings).some(arr => Array.isArray(arr) && arr.length > 0);
-  const hasDragMoves = Object.keys(drags).some(key => {
-    const def = draggableDefaults[key];
-    const cur = drags[key];
-    return def && cur && (cur.left !== def.left || cur.top !== def.top);
-  });
-  const hasPdf = !!safe.currentPdfUrl;
-
-  // IMPORTANT:
-  // page number alone should NOT count as meaningful progress
-  return hasInputs || hasDrawings || hasDragMoves || hasPdf;
-}
-
-function getPayloadProgressScore(progress) {
-  const safe = progress && typeof progress === "object" ? progress : {};
-  const inputValues = safe.inputValues && typeof safe.inputValues === "object" ? safe.inputValues : {};
-  const incomingDrawings = safe.drawings && typeof safe.drawings === "object" ? safe.drawings : {};
-  const drags = safe.draggables && typeof safe.draggables === "object" ? safe.draggables : {};
-
-  const filledInputs = Object.values(inputValues).filter(v => String(v || "").trim() !== "").length;
-
-  const drawingLines = Object.values(incomingDrawings).reduce((sum, arr) => {
-    return sum + (Array.isArray(arr) ? arr.length : 0);
-  }, 0);
-
-  const movedDragCount = Object.keys(drags).reduce((sum, key) => {
-    const def = draggableDefaults[key];
-    const cur = drags[key];
-    return sum + (def && cur && (cur.left !== def.left || cur.top !== def.top) ? 1 : 0);
-  }, 0);
-
-  const pdfBonus = safe.currentPdfUrl ? 1 : 0;
-
-  // IMPORTANT:
-  // only real work should affect the score
-  return (filledInputs * 1000) + (drawingLines * 20) + (movedDragCount * 50) + pdfBonus;
-}
-
-    function buildProgressPayload() {
       const viewer = document.getElementById("pdfViewer");
       return {
         playerName: loggedInUsername,
@@ -1036,92 +1107,91 @@ function getPayloadProgressScore(progress) {
       return json;
     }
 
-    async function registerUser() {
-      const usernameInput = document.getElementById("student-username");
-      const passwordInput = document.getElementById("student-password");
+    
+async function registerUser() {
+  const usernameInput = document.getElementById("auth-username");
+  const passwordInput = document.getElementById("auth-password");
 
-      const username = usernameInput.value.trim().toLowerCase();
-      const password = passwordInput.value;
+  const rawUsername = usernameInput.value || "";
+  const username = rawUsername.trim().toLowerCase();
+  const password = passwordInput.value;
 
-      if (!username || !password) {
-        setAuthStatus("Enter username and password", true);
-        return;
-      }
+  if (!username || !password) {
+    setAuthStatus("Enter username and password", true);
+    setAuthModalStatus("Enter username and password.", true);
+    return;
+  }
 
-      setAuthStatus("Registering...");
-      try {
-        const result = await apiFetch("/api/register", {
-          method: "POST",
-          body: JSON.stringify({ username, password, appId: APP_ID })
-        });
+  if (/\s/.test(rawUsername)) {
+    setAuthStatus("Username cannot contain spaces", true);
+    setAuthModalStatus("Username cannot contain spaces.", true);
+    return;
+  }
 
-        saveSessionLocally(result.token, result.username || username);
-if (result.saveData && typeof result.saveData === "object") {
-  await applyProgressPayload(result.saveData);
+  setAuthStatus("Registering...");
+  setAuthModalStatus("Registering...", false);
+
+  try {
+    const result = await apiFetch("/api/register", {
+      method: "POST",
+      body: JSON.stringify({ username, password, appId: APP_ID })
+    });
+
+    saveSessionLocally(result.token, result.username || username);
+    passwordInput.value = "";
+    await loadProgressFromServer();
+    setAuthModalStatus("Account created.", false);
+    closeAuthOverlay();
+  } catch (err) {
+    setAuthStatus(err.message || "Register failed", true);
+    setAuthModalStatus(err.message || "Register failed", true);
+  }
 }
-        passwordInput.value = "";
-        setSaveStatus("Loaded");
-      } catch (err) {
-        setAuthStatus(err.message || "Register failed", true);
-      }
-    }
 
-    async function loginUser() {
-      const usernameInput = document.getElementById("student-username");
-      const passwordInput = document.getElementById("student-password");
 
-      const username = usernameInput.value.trim().toLowerCase();
-      const password = passwordInput.value;
 
-      if (!username || !password) {
-        setAuthStatus("Enter username and password", true);
-        return;
-      }
+async function loginUser() {
+  const usernameInput = document.getElementById("auth-username");
+  const passwordInput = document.getElementById("auth-password");
 
-      setAuthStatus("Logging in...");
-      try {
-        const localPayload = buildProgressPayload();
+  const rawUsername = usernameInput.value || "";
+  const username = rawUsername.trim().toLowerCase();
+  const password = passwordInput.value;
 
-        const result = await apiFetch("/api/login", {
-          method: "POST",
-          body: JSON.stringify({ username, password, appId: APP_ID })
-        });
+  if (!username || !password) {
+    setAuthStatus("Enter username and password", true);
+    setAuthModalStatus("Enter username and password.", true);
+    return;
+  }
 
-        saveSessionLocally(result.token, result.username || username);
-        passwordInput.value = "";
+  if (/\s/.test(rawUsername)) {
+    setAuthStatus("Username cannot contain spaces", true);
+    setAuthModalStatus("Username cannot contain spaces.", true);
+    return;
+  }
 
-        const remotePayload = result.saveData || {};
-        const localHas = payloadHasMeaningfulProgress(localPayload);
-        const remoteHas = payloadHasMeaningfulProgress(remotePayload);
+  setAuthStatus("Logging in...");
+  setAuthModalStatus("Logging in...", false);
 
-        if (localHas && remoteHas) {
-          const localScore = getPayloadProgressScore(localPayload);
-          const remoteScore = getPayloadProgressScore(remotePayload);
+  try {
+    const result = await apiFetch("/api/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password, appId: APP_ID })
+    });
 
-          if (localScore >= remoteScore) {
-            setSaveStatus("Saving...");
-            await saveProgressToServer();
-            setSaveStatus("Saved");
-          } else {
-            await applyProgressPayload(remotePayload);
-            setSaveStatus("Loaded");
-          }
-        } else if (localHas) {
-          setSaveStatus("Saving...");
-          await saveProgressToServer();
-          setSaveStatus("Saved");
-        } else if (remoteHas) {
-          await applyProgressPayload(remotePayload);
-          setSaveStatus("Loaded");
-        } else {
-          setSaveStatus("Loaded");
-        }
-      } catch (err) {
-        setAuthStatus(err.message || "Login failed", true);
-      }
-    }
+    saveSessionLocally(result.token, result.username || username);
+    passwordInput.value = "";
+    await loadProgressFromServer();
+    setAuthModalStatus("Logged in.", false);
+    closeAuthOverlay();
+  } catch (err) {
+    setAuthStatus(err.message || "Login failed", true);
+    setAuthModalStatus(err.message || "Login failed", true);
+  }
+}
 
-    async function loadProgressFromServer() {
+
+async function loadProgressFromServer() {
       const result = await apiFetch("/api/load?appId=" + encodeURIComponent(APP_ID), {
         method: "GET"
       });
@@ -1196,29 +1266,31 @@ if (result.saveData && typeof result.saveData === "object") {
       }
     }
 
-    async function logoutUser() {
-      try {
-        setSaveStatus("Saving...");
-        await flushPendingSaveBeforeLogout();
-      } catch (err) {
-        console.error(err);
-      }
+    
+async function logoutUser() {
+  try {
+    setSaveStatus("Saving...");
+    await flushPendingSaveBeforeLogout();
+  } catch (err) {
+    console.error(err);
+  }
 
-      try {
-        if (authToken) {
-          await apiFetch("/api/logout", {
-            method: "POST",
-            body: "{}"
-          });
-        }
-      } catch (err) {
-        console.error(err);
-      }
-
-      clearSessionLocally();
-      document.getElementById("student-password").value = "";
-      setSaveStatus("Not saved yet");
+  try {
+    if (authToken) {
+      await apiFetch("/api/logout", {
+        method: "POST",
+        body: "{}"
+      });
     }
+  } catch (err) {
+    console.error(err);
+  }
+
+  const prefill = loggedInUsername || "";
+  clearSessionLocally();
+  setSaveStatus("Not saved yet");
+  openAuthOverlay(prefill);
+}
 
     function normalizeText(v) {
       return String(v || "").trim().toLowerCase();
@@ -1714,80 +1786,93 @@ if (result.saveData && typeof result.saveData === "object") {
       });
     }
 
-    function showTutorial() {
-      const alreadySeen = localStorage.getItem(TUTORIAL_STORAGE_KEY);
-      if (alreadySeen === "yes") return;
+    
+function showTutorial() {
+  const alreadySeen = localStorage.getItem(TUTORIAL_STORAGE_KEY);
+  if (alreadySeen === "yes") {
+    maybeRequireAuthOverlay();
+    return;
+  }
 
-      const overlay = document.getElementById("tutorialOverlay");
-      const img = document.getElementById("tutorialImage");
+  const overlay = document.getElementById("tutorialOverlay");
+  const img = document.getElementById("tutorialImage");
 
-      tutorialIndex = 0;
-      img.src = TUTORIAL_IMAGES[tutorialIndex];
-      overlay.style.display = "flex";
-    }
+  tutorialIndex = 0;
+  img.src = TUTORIAL_IMAGES[tutorialIndex];
+  overlay.style.display = "flex";
+}
 
-    function nextTutorialSlide() {
-      const overlay = document.getElementById("tutorialOverlay");
-      const img = document.getElementById("tutorialImage");
+function nextTutorialSlide() {
+  const overlay = document.getElementById("tutorialOverlay");
+  const img = document.getElementById("tutorialImage");
 
-      tutorialIndex++;
+  tutorialIndex++;
 
-      if (tutorialIndex >= TUTORIAL_IMAGES.length) {
-        overlay.style.display = "none";
-        localStorage.setItem(TUTORIAL_STORAGE_KEY, "yes");
-        return;
+  if (tutorialIndex >= TUTORIAL_IMAGES.length) {
+    overlay.style.display = "none";
+    localStorage.setItem(TUTORIAL_STORAGE_KEY, "yes");
+    maybeRequireAuthOverlay();
+    return;
+  }
+
+  img.src = TUTORIAL_IMAGES[tutorialIndex];
+}
+
+function initTutorial() {
+  const nextBtn = document.getElementById("tutorialNext");
+  nextBtn.addEventListener("click", nextTutorialSlide);
+
+  TUTORIAL_IMAGES.forEach(url => {
+    const pre = new Image();
+    pre.src = url;
+  });
+
+  showTutorial();
+}
+
+    
+  document.addEventListener("DOMContentLoaded", async function () {
+    restoreSessionLocally();
+
+    initPdfJs();
+    initDrawingCanvas("drawingCanvas13", "drawingCanvas13_reset", false, false);
+    initDrawingCanvas("drawingCanvas14", "drawingCanvas14_reset", false, false);
+    initDrawingCanvas("drawingCanvas15", "drawingCanvas15_reset", false, false);
+    initDrawingCanvas("drawingCanvas16", "drawingCanvas16_reset", false, false);
+    initUnlockButton();
+    initSecondCanvasHotspots();
+    initOpenFileButton();
+    initDraggables();
+    initTranslatorWidget();
+    initTranslationScreenshotTool();
+    initCloudSaveInputs();
+
+    document.getElementById("authRegisterBtn").addEventListener("click", registerUser);
+    document.getElementById("authLoginBtn").addEventListener("click", loginUser);
+    document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+
+    document.getElementById("auth-password").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        loginUser();
       }
-
-      img.src = TUTORIAL_IMAGES[tutorialIndex];
-    }
-
-    function initTutorial() {
-      const nextBtn = document.getElementById("tutorialNext");
-      nextBtn.addEventListener("click", nextTutorialSlide);
-
-      TUTORIAL_IMAGES.forEach(url => {
-        const pre = new Image();
-        pre.src = url;
-      });
-
-      showTutorial();
-    }
-
-    document.addEventListener("DOMContentLoaded", async function () {
-      restoreSessionLocally();
-
-      initPdfJs();
-      initDrawingCanvas("drawingCanvas13", "drawingCanvas13_reset", false, false);
-      initDrawingCanvas("drawingCanvas14", "drawingCanvas14_reset", false, false);
-      initDrawingCanvas("drawingCanvas15", "drawingCanvas15_reset", false, false);
-      initDrawingCanvas("drawingCanvas16", "drawingCanvas16_reset", false, false);
-      initUnlockButton();
-      initSecondCanvasHotspots();
-      initOpenFileButton();
-      initDraggables();
-      initTranslatorWidget();
-      initTranslationScreenshotTool();
-      initCloudSaveInputs();
-
-      document.getElementById("registerBtn").addEventListener("click", registerUser);
-      document.getElementById("loginBtn").addEventListener("click", loginUser);
-      document.getElementById("logoutBtn").addEventListener("click", logoutUser);
-
-      showPage(currentPage);
-
-      if (authToken) {
-        try {
-          await loadProgressFromServer();
-        } catch (err) {
-          console.error(err);
-          clearSessionLocally();
-          showPage(currentPage);
-        }
-      }
-
-      initTutorial();
     });
-  </script>
+
+    showPage(currentPage);
+
+    if (authToken) {
+      try {
+        await loadProgressFromServer();
+      } catch (err) {
+        console.error(err);
+        clearSessionLocally();
+        showPage(currentPage);
+      }
+    }
+
+    initTutorial();
+  });
+</script>
 
   <!-- ©XDY. All rights reserved. This code is the intellectual property of XDY. Unauthorized copying, reproduction, or redistribution is strictly prohibited. For educational use only. Contact the author for permissions. -->
 </body>
