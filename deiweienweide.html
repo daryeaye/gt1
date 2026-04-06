@@ -911,40 +911,50 @@
       });
     }
 
-    function payloadHasMeaningfulProgress(progress) {
-      const safe = progress && typeof progress === "object" ? progress : {};
-      const inputValues = safe.inputValues && typeof safe.inputValues === "object" ? safe.inputValues : {};
-      const incomingDrawings = safe.drawings && typeof safe.drawings === "object" ? safe.drawings : {};
-      const drags = safe.draggables && typeof safe.draggables === "object" ? safe.draggables : {};
+function payloadHasMeaningfulProgress(progress) {
+  const safe = progress && typeof progress === "object" ? progress : {};
+  const inputValues = safe.inputValues && typeof safe.inputValues === "object" ? safe.inputValues : {};
+  const incomingDrawings = safe.drawings && typeof safe.drawings === "object" ? safe.drawings : {};
+  const drags = safe.draggables && typeof safe.draggables === "object" ? safe.draggables : {};
 
-      const hasInputs = Object.values(inputValues).some(v => String(v || "").trim() !== "");
-      const hasDrawings = Object.values(incomingDrawings).some(arr => Array.isArray(arr) && arr.length > 0);
-      const hasDragMoves = Object.keys(drags).some(key => {
-        const def = draggableDefaults[key];
-        const cur = drags[key];
-        return def && cur && (cur.left !== def.left || cur.top !== def.top);
-      });
-      const hasOtherProgress =
-        Number(safe.currentPage || 1) > 1 ||
-        Number(safe.maxPageVisited || 1) > 1 ||
-        !!safe.currentPdfUrl;
+  const hasInputs = Object.values(inputValues).some(v => String(v || "").trim() !== "");
+  const hasDrawings = Object.values(incomingDrawings).some(arr => Array.isArray(arr) && arr.length > 0);
+  const hasDragMoves = Object.keys(drags).some(key => {
+    const def = draggableDefaults[key];
+    const cur = drags[key];
+    return def && cur && (cur.left !== def.left || cur.top !== def.top);
+  });
+  const hasPdf = !!safe.currentPdfUrl;
 
-      return hasInputs || hasDrawings || hasDragMoves || hasOtherProgress;
-    }
+  // IMPORTANT:
+  // page number alone should NOT count as meaningful progress
+  return hasInputs || hasDrawings || hasDragMoves || hasPdf;
+}
 
-    function getPayloadProgressScore(progress) {
-      const safe = progress && typeof progress === "object" ? progress : {};
-      const inputValues = safe.inputValues && typeof safe.inputValues === "object" ? safe.inputValues : {};
-      const incomingDrawings = safe.drawings && typeof safe.drawings === "object" ? safe.drawings : {};
+function getPayloadProgressScore(progress) {
+  const safe = progress && typeof progress === "object" ? progress : {};
+  const inputValues = safe.inputValues && typeof safe.inputValues === "object" ? safe.inputValues : {};
+  const incomingDrawings = safe.drawings && typeof safe.drawings === "object" ? safe.drawings : {};
+  const drags = safe.draggables && typeof safe.draggables === "object" ? safe.draggables : {};
 
-      const filledInputs = Object.values(inputValues).filter(v => String(v || "").trim() !== "").length;
-      const drawingLines = Object.values(incomingDrawings).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
-      const currentPageNum = Number.isInteger(Number(safe.currentPage)) ? Number(safe.currentPage) : 1;
-      const maxVisited = Number.isInteger(Number(safe.maxPageVisited)) ? Number(safe.maxPageVisited) : 1;
-      const pdfBonus = safe.currentPdfUrl ? 5 : 0;
+  const filledInputs = Object.values(inputValues).filter(v => String(v || "").trim() !== "").length;
 
-      return (maxVisited * 1000) + (currentPageNum * 100) + (filledInputs * 5) + drawingLines + pdfBonus;
-    }
+  const drawingLines = Object.values(incomingDrawings).reduce((sum, arr) => {
+    return sum + (Array.isArray(arr) ? arr.length : 0);
+  }, 0);
+
+  const movedDragCount = Object.keys(drags).reduce((sum, key) => {
+    const def = draggableDefaults[key];
+    const cur = drags[key];
+    return sum + (def && cur && (cur.left !== def.left || cur.top !== def.top) ? 1 : 0);
+  }, 0);
+
+  const pdfBonus = safe.currentPdfUrl ? 1 : 0;
+
+  // IMPORTANT:
+  // only real work should affect the score
+  return (filledInputs * 1000) + (drawingLines * 20) + (movedDragCount * 50) + pdfBonus;
+}
 
     function buildProgressPayload() {
       const viewer = document.getElementById("pdfViewer");
@@ -1046,7 +1056,9 @@
         });
 
         saveSessionLocally(result.token, result.username || username);
-        await applyProgressPayload(result.saveData || {});
+if (result.saveData && typeof result.saveData === "object") {
+  await applyProgressPayload(result.saveData);
+}
         passwordInput.value = "";
         setSaveStatus("Loaded");
       } catch (err) {
