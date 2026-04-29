@@ -15,11 +15,13 @@
       background: url('https://daryeaye.github.io/geotopia/thatsit2.png') no-repeat center center fixed;
       background-size: cover;
     }
+
     #app-container {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+
     /* The container remains 960px x 540px */
     #container {
       position: relative;
@@ -29,6 +31,7 @@
       background: white;
       overflow: hidden;
     }
+
     /* Pages are absolutely positioned inside the container */
     .page {
       position: absolute;
@@ -40,20 +43,28 @@
       background-size: cover;
       background-position: center;
     }
+
     .page.active {
       display: block;
     }
+
     /* Style for the clickable box */
     .box {
       position: absolute;
       border: 1px solid red;
-      /* Optional background for visibility */
       background-color: rgba(255, 0, 0, 0.3);
     }
+
+    .transparent-box {
+  border: none;
+  background-color: transparent;
+}
+
     /* Navigation buttons styling */
     #nav-buttons {
       margin-top: 10px;
     }
+
     button {
       font-family: "Comic Sans MS", sans-serif;
       font-size: 20px;
@@ -68,6 +79,7 @@
   <!-- Additional Side Widget Resources -->
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
     /* Side widget styling */
     #side-widget {
@@ -83,11 +95,13 @@
       font-family: 'Caveat', cursive;
       z-index: 999;
     }
+
     #side-widget p.title {
       font-size: 24px;
       text-align: center;
       margin: 0 0 10px;
     }
+
     #side-widget button,
     #side-widget a {
       display: block;
@@ -101,6 +115,7 @@
       text-decoration: none;
       color: inherit;
     }
+
     /* Selection overlay styles */
     #selection-overlay {
       position: fixed;
@@ -111,6 +126,7 @@
       cursor: crosshair;
       z-index: 1000;
     }
+
     #selection-box {
       position: absolute;
       border: 2px dashed red;
@@ -118,22 +134,35 @@
     }
   </style>
 </head>
+
 <body>
   <div id="app-container">
     <div id="container">
-      <!-- Page 1 with background image 1-20.jpg -->
-      <div id="page1" class="page active" style="background: url('https://daryeaye.github.io/gt1/1-20.jpg') no-repeat center/cover;">
+
+      <!-- New Page 1 with background image gt8/1.jpg -->
+      <div id="page1" class="page active" style="background: url('https://daryeaye.github.io/gt8/1.jpg') no-repeat center/cover;">
+        <!-- New clickable box -->
+        <a href="https://daryeaye.github.io/gt8/1.png" target="_blank">
+<div class="box transparent-box" style="left: 84px; top: 123px; width: 229px; height: 268px;"></div>        </a>
+      </div>
+
+      <!-- Original Page 1, now Page 2 -->
+      <div id="page2" class="page" style="background: url('https://daryeaye.github.io/gt1/1-20.jpg') no-repeat center/cover;">
         <h2 style="text-align:center; padding-top: 240px; color: white;"></h2>
       </div>
-      <!-- Page 2 with background image 1-21.jpg -->
-      <div id="page2" class="page" style="background: url('https://daryeaye.github.io/gt1/1-21.jpg') no-repeat center/cover;">
+
+      <!-- Original Page 2, now Page 3 -->
+      <div id="page3" class="page" style="background: url('https://daryeaye.github.io/gt1/1-21.jpg') no-repeat center/cover;">
         <h2 style="text-align:center; padding-top: 240px; color: white;"></h2>
-        <!-- Clickable box on page 2 -->
+
+        <!-- Original clickable box on Page 3 -->
         <a href="https://polypad.amplify.com/p/g8eh7VTDvyYA" target="_blank">
           <div class="box" style="left: 639px; top: 19px; width: 134px; height: 49px;"></div>
         </a>
       </div>
+
     </div>
+
     <!-- Navigation buttons -->
     <div id="nav-buttons">
       <button id="prev-btn" onclick="prevPage()">Previous</button>
@@ -141,7 +170,7 @@
     </div>
   </div>
   
-  <!-- Side Widget (without "Welcome to My Web App" content) -->
+  <!-- Side Widget -->
   <div id="side-widget">
     <p class="title">Need translation?</p>
     <button id="select-text">Select Text</button>
@@ -181,6 +210,7 @@
           const rectTop = Math.min(startY, currentY);
           const rectWidth = Math.abs(currentX - startX);
           const rectHeight = Math.abs(currentY - startY);
+
           selectionBox.style.left = rectLeft + 'px';
           selectionBox.style.top = rectTop + 'px';
           selectionBox.style.width = rectWidth + 'px';
@@ -194,7 +224,7 @@
           const boxRect = selectionBox.getBoundingClientRect();
           document.body.removeChild(overlay);
           
-          // Target the content area you wish to capture (using main code's container)
+          // Target the content area you wish to capture
           const target = document.getElementById('container');
           const targetRect = target.getBoundingClientRect();
           
@@ -210,6 +240,7 @@
             const croppedCanvas = document.createElement('canvas');
             croppedCanvas.width = sWidth;
             croppedCanvas.height = sHeight;
+
             const ctx = croppedCanvas.getContext('2d');
             ctx.drawImage(canvas, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
             
@@ -237,22 +268,33 @@
   <!-- Main Code Script -->
   <script>
     let currentPage = 1;
-    const totalPages = 2;
+    const totalPages = 3;
     
     // Function to display the correct page and toggle button visibility.
     function showPage(pageNum) {
       for (let i = 1; i <= totalPages; i++) {
         document.getElementById('page' + i).classList.remove('active');
       }
+
       document.getElementById('page' + pageNum).classList.add('active');
       
-      // On the first page, hide Previous; on the last page, hide Next.
+      const prevBtn = document.getElementById("prev-btn");
+      const nextBtn = document.getElementById("next-btn");
+
+      // On the first page, hide Previous.
       if (pageNum === 1) {
-        document.getElementById("prev-btn").style.display = "none";
-        document.getElementById("next-btn").style.display = "inline-block";
-      } else if (pageNum === totalPages) {
-        document.getElementById("next-btn").style.display = "none";
-        document.getElementById("prev-btn").style.display = "inline-block";
+        prevBtn.style.display = "none";
+        nextBtn.style.display = "inline-block";
+      } 
+      // On the last page, hide Next.
+      else if (pageNum === totalPages) {
+        prevBtn.style.display = "inline-block";
+        nextBtn.style.display = "none";
+      } 
+      // On middle pages, show both buttons.
+      else {
+        prevBtn.style.display = "inline-block";
+        nextBtn.style.display = "inline-block";
       }
     }
     
@@ -276,4 +318,3 @@
   </script>
 </body>
 </html>
-
